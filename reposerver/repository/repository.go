@@ -50,7 +50,7 @@ type Service struct {
 	parallelismLimitSemaphore *semaphore.Weighted
 	metricsServer             *metrics.MetricsServer
 	newGitClient              func(rawRepoURL string, creds git.Creds, insecure bool, enableLfs bool) (git.Client, error)
-	newHelmClient             func(repoURL string, creds helm.Creds) helm.Client
+	newHelmClient             func(repoType string, repoURL string, creds helm.Creds) helm.Client
 }
 
 // NewService returns a new instance of the Manifest service
@@ -66,8 +66,8 @@ func NewService(metricsServer *metrics.MetricsServer, cache *reposervercache.Cac
 		cache:                     cache,
 		metricsServer:             metricsServer,
 		newGitClient:              git.NewClient,
-		newHelmClient: func(repoURL string, creds helm.Creds) helm.Client {
-			return helm.NewClientWithLock(repoURL, creds, repoLock)
+		newHelmClient: func(repoType string, repoURL string, creds helm.Creds) helm.Client {
+			return helm.NewClientWithLock(repoType, repoURL, creds, repoLock)
 		},
 	}
 }
@@ -664,12 +664,16 @@ func (s *Service) GetAppDetails(ctx context.Context, q *apiclient.RepoServerAppD
 	}
 
 	err := s.runRepoOperation(ctx, q.Source.TargetRevision, q.Repo, q.Source, getCached, func(appPath, repoRoot, revision string) error {
+		log.Infof("++++++++++++++++++++++++q:   %v", q)
+		log.Infof("++++++++++++++++++++++++appPath:   %s", appPath)
+		log.Infof("++++++++++++++++++++++++repoRoot:   %s", appPath)
 		appSourceType, err := GetAppSourceType(q.Source, appPath)
 		if err != nil {
 			return err
 		}
 
 		res.Type = string(appSourceType)
+		log.Infof("++++++++++++++++++++++++res.Type %s", res.Type)
 
 		switch appSourceType {
 		case v1alpha1.ApplicationSourceTypeKsonnet:
@@ -697,6 +701,7 @@ func (s *Service) GetAppDetails(ctx context.Context, q *apiclient.RepoServerAppD
 			ksonnetAppSpec.Parameters = params
 			res.Ksonnet = &ksonnetAppSpec
 		case v1alpha1.ApplicationSourceTypeHelm:
+			log.Infof("++++++++++++++++++++++++v1alpha1.ApplicationSourceTypeHelm")
 			res.Helm = &apiclient.HelmAppSpec{}
 			files, err := ioutil.ReadDir(appPath)
 			if err != nil {
@@ -841,7 +846,7 @@ func (s *Service) newClientResolveRevision(repo *v1alpha1.Repository, revision s
 }
 
 func (s *Service) newHelmClientResolveRevision(repo *v1alpha1.Repository, revision string, chart string) (helm.Client, string, error) {
-	helmClient := s.newHelmClient(repo.Repo, repo.GetHelmCreds())
+	helmClient := s.newHelmClient(repo.Type, repo.Repo, repo.GetHelmCreds())
 	if helm.IsVersion(revision) {
 		return helmClient, revision, nil
 	}
@@ -883,7 +888,7 @@ func checkoutRevision(gitClient git.Client, commitSHA string) (string, error) {
 }
 
 func (s *Service) GetHelmCharts(ctx context.Context, q *apiclient.HelmChartsRequest) (*apiclient.HelmChartsResponse, error) {
-	index, err := s.newHelmClient(q.Repo.Repo, q.Repo.GetHelmCreds()).GetIndex()
+	index, err := s.newHelmClient(q.Repo.Type, q.Repo.Repo, q.Repo.GetHelmCreds()).GetIndex()
 	if err != nil {
 		return nil, err
 	}

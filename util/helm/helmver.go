@@ -19,6 +19,7 @@ var (
 		showCommand:          "inspect",
 		pullCommand:          "fetch",
 		initSupported:        true,
+		ociSupported:         false,
 	}
 	// HelmV3 represents helm V3 specific settings
 	HelmV3 = HelmVer{
@@ -28,8 +29,22 @@ var (
 		showCommand:             "show",
 		pullCommand:             "pull",
 		initSupported:           false,
+		ociSupported:            true,
 		getPostTemplateCallback: cleanupChartLockFile,
 	}
+	// HelmOCI represents helm OCI specific settings
+	HelmOCI = HelmVer{
+		binaryName:              "helm",
+		templateNameArg:         "--name-template",
+		kubeVersionSupported:    false,
+		showCommand:             "show",
+		pullCommand:             "pull",
+		initSupported:           false,
+		ociSupported:            true,
+		getPostTemplateCallback: cleanupChartLockFile,
+	}
+	//
+	HelmOCIEnv = "HELM_EXPERIMENTAL_OCI=1"
 )
 
 // workaround for Helm3 bug. Remove after https://github.com/helm/helm/issues/6870 is fixed.
@@ -77,6 +92,7 @@ func getHelmVersion(chartPath string) (*HelmVer, error) {
 type HelmVer struct {
 	binaryName              string
 	initSupported           bool
+	ociSupported            bool
 	templateNameArg         string
 	showCommand             string
 	pullCommand             string

@@ -168,7 +168,7 @@ func NewClient(opts *ClientOptions) (Client, error) {
 	}
 	// Make sure we got the server address and auth token from somewhere
 	if c.ServerAddr == "" {
-		return nil, errors.New("Argo CD server address unspecified")
+		return nil, errors.New("App Center server address unspecified")
 	}
 	if parts := strings.Split(c.ServerAddr, ":"); len(parts) == 1 {
 		// If port is unspecified, assume the most likely port

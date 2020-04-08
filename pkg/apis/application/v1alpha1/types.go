@@ -145,6 +145,16 @@ func (a *ApplicationSource) IsHelm() bool {
 	return a.Chart != ""
 }
 
+func (a *ApplicationSource) GetRepoType() string {
+	if a.Chart == "" {
+		return "git"
+	}
+	if strings.Contains(a.Chart, "/") {
+		return "helm-oci"
+	}
+	return "helm"
+}
+
 func (a *ApplicationSource) IsZero() bool {
 	return a == nil ||
 		a.RepoURL == "" &&

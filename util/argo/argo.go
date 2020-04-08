@@ -25,8 +25,8 @@ import (
 	"github.com/argoproj/argo-cd/util"
 	"github.com/argoproj/argo-cd/util/db"
 	"github.com/argoproj/argo-cd/util/git"
-	"github.com/argoproj/argo-cd/util/helm"
 	"github.com/argoproj/argo-cd/util/kube"
+	"github.com/argoproj/argo-cd/util/helm"
 )
 
 const (
@@ -123,13 +123,14 @@ func WaitForRefresh(ctx context.Context, appIf v1alpha1.ApplicationInterface, na
 	return nil, fmt.Errorf("application refresh deadline exceeded")
 }
 
-func TestRepoWithKnownType(repo *argoappv1.Repository, isHelm bool) error {
+func TestRepoWithKnownType(repo *argoappv1.Repository, repoType string) error {
 	repo = repo.DeepCopy()
-	if isHelm {
-		repo.Type = "helm"
-	} else {
-		repo.Type = "git"
-	}
+	//if isHelm {
+	//	repo.Type = "helm"
+	//} else {
+	//	repo.Type = "git"
+	//}
+	repo.Type = repoType
 	return TestRepo(repo)
 }
 
@@ -139,8 +140,12 @@ func TestRepo(repo *argoappv1.Repository) error {
 			return git.TestRepo(repo.Repo, repo.GetGitCreds(), repo.IsInsecure(), repo.IsLFSEnabled())
 		},
 		"helm": func() error {
-			_, err := helm.NewClient(repo.Repo, repo.GetHelmCreds()).GetIndex()
+			_, err := helm.NewClient(repo.Type, repo.Repo, repo.GetHelmCreds()).GetIndex()
 			return err
+		},
+		//TODO: if repo type is helm-oci, add a check func
+		"helm-oci": func() error {
+			return nil
 		},
 	}
 	if check, ok := checks[repo.Type]; ok {
@@ -185,7 +190,7 @@ func ValidateRepo(
 	}
 
 	repoAccessible := false
-	err = TestRepoWithKnownType(repo, app.Spec.Source.IsHelm())
+	err = TestRepoWithKnownType(repo, app.Spec.Source.GetRepoType())
 	if err != nil {
 		conditions = append(conditions, argoappv1.ApplicationCondition{
 			Type:    argoappv1.ApplicationConditionInvalidSpecError,

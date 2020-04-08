@@ -12,6 +12,7 @@ import (
 
 	"github.com/argoproj/argo-cd/util"
 	executil "github.com/argoproj/argo-cd/util/exec"
+	"strings"
 )
 
 // A thin wrapper around the "helm" command, adding logging and error translation.
@@ -43,7 +44,8 @@ var redactor = func(text string) string {
 }
 
 func (c Cmd) run(args ...string) (string, error) {
-	cmd := exec.Command(c.binaryName, args...)
+	argsStr := strings.Join(args, " ")
+	cmd := exec.Command("sh", "-c", argsStr)
 	cmd.Dir = c.WorkDir
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env,
@@ -56,7 +58,75 @@ func (c Cmd) run(args ...string) (string, error) {
 
 func (c *Cmd) Init() (string, error) {
 	if c.initSupported {
-		return c.run("init", "--client-only", "--skip-refresh")
+		return c.run(c.binaryName, "init", "--client-only", "--skip-refresh")
+	}
+	return "", nil
+}
+
+func (c *Cmd) Login(repo string, creds Creds) (string, error) {
+	if c.ociSupported {
+		args := []string{HelmOCIEnv, c.binaryName, "registry", "login"}
+		args = append(args, repo)
+
+		if creds.Username != "" {
+			args = append(args, "--username", creds.Username)
+		}
+
+		if creds.Password != "" {
+			args = append(args, "--password", creds.Password)
+		}
+
+		if creds.CAPath != "" {
+			args = append(args, "--ca-file", creds.CAPath)
+		}
+		if len(creds.CertData) > 0 {
+			filePath, closer, err := writeToTmp(creds.CertData)
+			if err != nil {
+				return "", err
+			}
+			defer util.Close(closer)
+			args = append(args, "--cert-file", filePath)
+		}
+		if len(creds.KeyData) > 0 {
+			filePath, closer, err := writeToTmp(creds.KeyData)
+			if err != nil {
+				return "", err
+			}
+			defer util.Close(closer)
+			args = append(args, "--key-file", filePath)
+		}
+
+		return c.run(args...)
+	}
+	return "", nil
+}
+
+func (c *Cmd) Logout(repo string, creds Creds) (string, error) {
+	if c.ociSupported {
+		args := []string{HelmOCIEnv, c.binaryName, "registry", "logout"}
+		args = append(args, repo)
+
+		if creds.CAPath != "" {
+			args = append(args, "--ca-file", creds.CAPath)
+		}
+		if len(creds.CertData) > 0 {
+			filePath, closer, err := writeToTmp(creds.CertData)
+			if err != nil {
+				return "", err
+			}
+			defer util.Close(closer)
+			args = append(args, "--cert-file", filePath)
+		}
+		if len(creds.KeyData) > 0 {
+			filePath, closer, err := writeToTmp(creds.KeyData)
+			if err != nil {
+				return "", err
+			}
+			defer util.Close(closer)
+			args = append(args, "--key-file", filePath)
+		}
+
+		return c.run(args...)
 	}
 	return "", nil
 }
@@ -68,7 +138,7 @@ func (c *Cmd) RepoAdd(name string, url string, opts Creds) (string, error) {
 	}
 	defer func() { _ = os.RemoveAll(tmp) }()
 
-	args := []string{"repo", "add"}
+	args := []string{c.binaryName, "repo", "add"}
 
 	if opts.Username != "" {
 		args = append(args, "--username", opts.Username)
@@ -127,47 +197,110 @@ func writeToTmp(data []byte) (string, io.Closer, error) {
 }
 
 func (c *Cmd) Fetch(repo, chartName, version, destination string, creds Creds) (string, error) {
-	args := []string{c.pullCommand, "--destination", destination}
+	args := []string{}
+	if c.ociSupported {
+		args = []string{HelmOCIEnv, c.binaryName, "chart", "pull"}
+		repoUrl := ""
+		if version != "" {
+			repoUrl = fmt.Sprintf(repo+"/"+chartName+":"+version)
+		} else {
+			repoUrl = fmt.Sprintf(repo+"/"+chartName)
+		}
 
-	if version != "" {
-		args = append(args, "--version", version)
-	}
-	if creds.Username != "" {
-		args = append(args, "--username", creds.Username)
-	}
-	if creds.Password != "" {
-		args = append(args, "--password", creds.Password)
-	}
-	if creds.CAPath != "" {
-		args = append(args, "--ca-file", creds.CAPath)
-	}
-	if len(creds.CertData) > 0 {
-		filePath, closer, err := writeToTmp(creds.CertData)
+		args = append(args, repoUrl)
+
+		if creds.CAPath != "" {
+			args = append(args, "--ca-file", creds.CAPath)
+		}
+		if len(creds.CertData) > 0 {
+			filePath, closer, err := writeToTmp(creds.CertData)
+			if err != nil {
+				return "", err
+			}
+			defer util.Close(closer)
+			args = append(args, "--cert-file", filePath)
+		}
+		if len(creds.KeyData) > 0 {
+			filePath, closer, err := writeToTmp(creds.KeyData)
+			if err != nil {
+				return "", err
+			}
+			defer util.Close(closer)
+			args = append(args, "--key-file", filePath)
+		}
+
+		_, err := c.run(args...)
 		if err != nil {
 			return "", err
 		}
-		defer util.Close(closer)
-		args = append(args, "--cert-file", filePath)
-	}
-	if len(creds.KeyData) > 0 {
-		filePath, closer, err := writeToTmp(creds.KeyData)
-		if err != nil {
-			return "", err
+
+		// helm chart export
+		args = []string{HelmOCIEnv, c.binaryName, "chart", "export", repoUrl, "--destination", destination}
+
+		if creds.CAPath != "" {
+			args = append(args, "--ca-file", creds.CAPath)
 		}
-		defer util.Close(closer)
-		args = append(args, "--key-file", filePath)
+		if len(creds.CertData) > 0 {
+			filePath, closer, err := writeToTmp(creds.CertData)
+			if err != nil {
+				return "", err
+			}
+			defer util.Close(closer)
+			args = append(args, "--cert-file", filePath)
+		}
+		if len(creds.KeyData) > 0 {
+			filePath, closer, err := writeToTmp(creds.KeyData)
+			if err != nil {
+				return "", err
+			}
+			defer util.Close(closer)
+			args = append(args, "--key-file", filePath)
+		}
+
+	} else {
+		args = []string{c.binaryName, c.pullCommand, "--destination", destination}
+
+		if version != "" {
+			args = append(args, "--version", version)
+		}
+		if creds.Username != "" {
+			args = append(args, "--username", creds.Username)
+		}
+		if creds.Password != "" {
+			args = append(args, "--password", creds.Password)
+		}
+		if creds.CAPath != "" {
+			args = append(args, "--ca-file", creds.CAPath)
+		}
+		if len(creds.CertData) > 0 {
+			filePath, closer, err := writeToTmp(creds.CertData)
+			if err != nil {
+				return "", err
+			}
+			defer util.Close(closer)
+			args = append(args, "--cert-file", filePath)
+		}
+		if len(creds.KeyData) > 0 {
+			filePath, closer, err := writeToTmp(creds.KeyData)
+			if err != nil {
+				return "", err
+			}
+			defer util.Close(closer)
+			args = append(args, "--key-file", filePath)
+		}
+
+		args = append(args, "--repo", repo, chartName)
 	}
 
-	args = append(args, "--repo", repo, chartName)
 	return c.run(args...)
 }
 
 func (c *Cmd) dependencyBuild() (string, error) {
-	return c.run("dependency", "build")
+	return c.run(c.binaryName, "dependency", "build")
 }
 
 func (c *Cmd) inspectValues(values string) (string, error) {
-	return c.run(c.showCommand, "values", values)
+	return c.run(c.binaryName, c.showCommand, "values", values)
 }
 
 type TemplateOpts struct {
@@ -198,7 +331,7 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, error) {
 		}
 	}
 
-	args := []string{"template", chartPath, c.templateNameArg, opts.Name}
+	args := []string{c.binaryName, "template", chartPath, c.templateNameArg, opts.Name}
 
 	if opts.Namespace != "" {
 		args = append(args, "--namespace", opts.Namespace)

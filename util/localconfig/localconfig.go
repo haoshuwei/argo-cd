@@ -245,7 +245,7 @@ func DefaultConfigDir() (string, error) {
 		}
 		homeDir = usr.HomeDir
 	}
-	return path.Join(homeDir, ".argocd"), nil
+	return path.Join(homeDir, ".appcenter"), nil
 }
 
 // DefaultLocalConfigPath returns the local configuration path for settings such as cached authentication tokens.
