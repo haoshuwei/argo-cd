@@ -1,7 +1,6 @@
 .vscode/
 .idea/
 .DS_Store
-vendor/
 dist/
 site/
 *.iml
@@ -10,3 +9,4 @@ cmd/**/debug
 debug.test
 coverage.out
 test-results
+vendor
