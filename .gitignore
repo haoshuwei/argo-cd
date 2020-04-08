@@ -9,4 +9,4 @@ cmd/**/debug
 debug.test
 coverage.out
 test-results
-vendor
+#vendor
