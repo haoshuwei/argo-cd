@@ -151,6 +151,37 @@ func (s *Server) ListApps(ctx context.Context, q *repositorypkg.RepoAppsQuery) (
 	return &repositorypkg.RepoAppsResponse{Items: items}, nil
 }
 
+// ListAppsACK returns list of apps in the repo
+func (s *Server) ListAppsACK(ctx context.Context, q *repositorypkg.RepoAppsQuery) (*repositorypkg.RepoAppsResponse, error) {
+	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionGet, q.Repo); err != nil {
+		return nil, err
+	}
+	repo, err := s.db.GetRepository(ctx, q.Repo)
+	if err != nil {
+		return nil, err
+	}
+
+	// Test the repo
+	conn, repoClient, err := s.repoClientset.NewRepoServerClient()
+	if err != nil {
+		return nil, err
+	}
+	defer util.Close(conn)
+
+	apps, err := repoClient.ListApps(ctx, &apiclient.ListAppsRequest{
+		Repo:     repo,
+		Revision: q.Revision,
+	})
+	if err != nil {
+		return nil, err
+	}
+	items := make([]*repositorypkg.AppInfo, 0)
+	for app, appType := range apps.Apps {
+		items = append(items, &repositorypkg.AppInfo{Path: app, Type: appType})
+	}
+	return &repositorypkg.RepoAppsResponse{Items: items}, nil
+}
+
 func (s *Server) GetAppDetails(ctx context.Context, q *repositorypkg.RepoAppDetailsQuery) (*apiclient.RepoAppDetailsResponse, error) {
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionGet, q.Source.RepoURL); err != nil {
 		return nil, err
@@ -182,7 +213,54 @@ func (s *Server) GetAppDetails(ctx context.Context, q *repositorypkg.RepoAppDeta
 	})
 }
 
+func (s *Server) GetAppDetailsACK(ctx context.Context, q *repositorypkg.RepoAppDetailsQuery) (*apiclient.RepoAppDetailsResponse, error) {
+	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionGet, q.Source.RepoURL); err != nil {
+		return nil, err
+	}
+	repo, err := s.db.GetRepository(ctx, q.Source.RepoURL)
+	if err != nil {
+		return nil, err
+	}
+	conn, repoClient, err := s.repoClientset.NewRepoServerClient()
+	if err != nil {
+		return nil, err
+	}
+	defer util.Close(conn)
+	helmRepos, err := s.db.ListHelmRepositories(ctx)
+	if err != nil {
+		return nil, err
+	}
+	buildOptions, err := s.settings.GetKustomizeBuildOptions()
+	if err != nil {
+		return nil, err
+	}
+	return repoClient.GetAppDetails(ctx, &apiclient.RepoServerAppDetailsQuery{
+		Repo:   repo,
+		Source: q.Source,
+		Repos:  helmRepos,
+		KustomizeOptions: &appsv1.KustomizeOptions{
+			BuildOptions: buildOptions,
+		},
+	})
+}
+
 func (s *Server) GetHelmCharts(ctx context.Context, q *repositorypkg.RepoQuery) (*apiclient.HelmChartsResponse, error) {
+	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionGet, q.Repo); err != nil {
+		return nil, err
+	}
+	repo, err := s.db.GetRepository(ctx, q.Repo)
+	if err != nil {
+		return nil, err
+	}
+	conn, repoClient, err := s.repoClientset.NewRepoServerClient()
+	if err != nil {
+		return nil, err
+	}
+	defer util.Close(conn)
+	return repoClient.GetHelmCharts(ctx, &apiclient.HelmChartsRequest{Repo: repo})
+}
+
+func (s *Server) GetHelmChartsACK(ctx context.Context, q *repositorypkg.RepoQuery) (*apiclient.HelmChartsResponse, error) {
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionGet, q.Repo); err != nil {
 		return nil, err
 	}
@@ -279,6 +357,21 @@ func (s *Server) Delete(ctx context.Context, q *repositorypkg.RepoQuery) (*repos
 
 // DeleteRepository removes a repository from the configuration
 func (s *Server) DeleteRepository(ctx context.Context, q *repositorypkg.RepoQuery) (*repositorypkg.RepoResponse, error) {
+	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionDelete, q.Repo); err != nil {
+		return nil, err
+	}
+
+	// invalidate cache
+	if err := s.cache.SetRepoConnectionState(q.Repo, nil); err == nil {
+		log.Errorf("error invalidating cache: %v", err)
+	}
+
+	err := s.db.DeleteRepository(ctx, q.Repo)
+	return &repositorypkg.RepoResponse{}, err
+}
+
+// DeleteRepositoryACK removes a repository from the configuration
+func (s *Server) DeleteRepositoryACK(ctx context.Context, q *repositorypkg.RepoQuery) (*repositorypkg.RepoResponse, error) {
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionDelete, q.Repo); err != nil {
 		return nil, err
 	}
