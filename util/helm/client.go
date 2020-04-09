@@ -75,11 +75,11 @@ func fileExist(filePath string) (bool, error) {
 	return true, nil
 }
 
-func (c *nativeHelmChart) ensureHelmChartRepoPath() error {
-	c.repoLock.Lock(c.repoPath)
-	defer c.repoLock.Unlock(c.repoPath)
+func (c *nativeHelmChart) ensureHelmChartRepoPath(repoPath string) error {
+	c.repoLock.Lock(repoPath)
+	defer c.repoLock.Unlock(repoPath)
 
-	err := os.Mkdir(c.repoPath, 0700)
+	err := os.MkdirAll(repoPath, 0700)
 	if err != nil && !os.IsExist(err) {
 		return err
 	}
@@ -87,15 +87,18 @@ func (c *nativeHelmChart) ensureHelmChartRepoPath() error {
 }
 
 func (c *nativeHelmChart) CleanChartCache(chart string, version *semver.Version) error {
-	return os.RemoveAll(c.getChartPath(c.repoType, chart, version))
+	chartPath, err := c.getChartPath(c.repoType, chart, version)
+	if err != nil {
+		return err
+	}
+	return os.RemoveAll(chartPath)
 }
 
 func (c *nativeHelmChart) ExtractChart(chart string, version *semver.Version) (string, util.Closer, error) {
-	err := c.ensureHelmChartRepoPath()
+	chartPath, err := c.getChartPath(c.repoType, chart, version)
 	if err != nil {
 		return "", nil, err
 	}
-	chartPath := c.getChartPath(c.repoType, chart, version)
 
 	c.repoLock.Lock(chartPath)
 	defer c.repoLock.Unlock(chartPath)
@@ -108,9 +111,10 @@ func (c *nativeHelmChart) ExtractChart(chart string, version *semver.Version) (s
 		// always use Helm V3 since we don't have chart content to determine correct Helm version
 		helmCmd := &Cmd{}
 		var err error
-		if c.repoType == "helm-oci" {
+		switch c.repoType  {
+		case HelmOCIType :
 			helmCmd, err = NewCmdWithVersion(c.repoPath, HelmOCI)
-		} else {
+		default:
 			helmCmd, err = NewCmdWithVersion(c.repoPath, HelmV3)
 		}
 		if err != nil {
@@ -136,7 +140,7 @@ func (c *nativeHelmChart) ExtractChart(chart string, version *semver.Version) (s
 		if err != nil {
 			return "", nil, err
 		}
-		defer func() { _ = os.RemoveAll(tempDest) }()
+		//defer func() { _ = os.RemoveAll(tempDest) }()
 
 		_, err = helmCmd.Fetch(c.repoURL, chart, version.String(), tempDest, c.creds)
 		if err != nil {
@@ -162,16 +166,17 @@ func (c *nativeHelmChart) ExtractChart(chart string, version *semver.Version) (s
 		return "", nil, err
 	}
 	chartName := ""
-	if c.repoType == "helm-oci" {
-		chartName = strings.Split(chart, "/")[1]
-		cmd := exec.Command("cp", "-r", chartPath)
+	switch c.repoType {
+	case HelmOCIType:
+		chartName = fmt.Sprintf("%s-%v", strings.Split(chart, "/")[1], version)
+		cmd := exec.Command("cp", "-r", chartPath, ".")
 		cmd.Dir = tempDir
 		_, err = executil.Run(cmd)
 		if err != nil {
 			_ = os.RemoveAll(tempDir)
 			return "", nil, err
 		}
-	} else {
+	default:
 		chartName = chart
 		cmd := exec.Command("tar", "-zxvf", chartPath)
 		cmd.Dir = tempDir
@@ -269,9 +274,23 @@ func newTLSConfig(creds Creds) (*tls.Config, error) {
 	return tlsConfig, nil
 }
 
-func (c *nativeHelmChart) getChartPath(repoType string, chart string, version *semver.Version) string {
-	if repoType == "helm-oci" {
-		return path.Join(c.repoPath, fmt.Sprintf("%s-%v", chart, version))
+func (c *nativeHelmChart) getChartPath(repoType string, chart string, version *semver.Version) (string, error) {
+	var repoPath string
+	var chartPath string
+	switch repoType {
+	case HelmOCIType:
+		repoPath = path.Join(c.repoPath, strings.Split(chart, "/")[0])
+		chartPath = path.Join(c.repoPath, fmt.Sprintf("%s-%v", chart, version))
+	default:
+		repoPath = c.repoPath
+		chartPath = path.Join(c.repoPath, fmt.Sprintf("%s-%v.tgz", chart, version))
 	}
-	return path.Join(c.repoPath, fmt.Sprintf("%s-%v.tgz", chart, version))
+
+	log.Infof("====%s", repoPath)
+	err := c.ensureHelmChartRepoPath(repoPath)
+	if err != nil {
+		return "", err
+	}
+	return chartPath, nil
+
 }
