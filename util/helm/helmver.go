@@ -45,6 +45,7 @@ var (
 	}
 	//
 	HelmOCIEnv = "HELM_EXPERIMENTAL_OCI=1"
+	HelmOCIType   = "helm-oci"
 )
 
 // workaround for Helm3 bug. Remove after https://github.com/helm/helm/issues/6870 is fixed.
