@@ -103,7 +103,7 @@ service RepositoryService {
 
 	// ListAppsACK returns list of apps in the repo
 	rpc ListAppsACK(RepoAppsQuery) returns (RepoAppsResponse) {
-		option (google.api.http).get = "/api/ack/v1/repositories/repo/apps";
+		option (google.api.http).get = "/api/v1/repositories_v2/repo/apps";
 	}
 
 	// GetAppDetails returns application details by given path
@@ -117,7 +117,7 @@ service RepositoryService {
 	// GetAppDetailsACK returns application details by given path
 	rpc GetAppDetailsACK(RepoAppDetailsQuery) returns (repository.RepoAppDetailsResponse) {
 		option (google.api.http) = {
-			post: "/api/ack/v1/repositories/source/repo/appdetails"
+			post: "/api/v1/repositories_v2/repo/appdetails"
 			body: "*"
 		};
 	}
@@ -127,7 +127,7 @@ service RepositoryService {
 	}
 
 	rpc GetHelmChartsACK(RepoQuery) returns (repository.HelmChartsResponse) {
-		option (google.api.http).get = "/api/ack/v1/repositories/repo/helmcharts";
+		option (google.api.http).get = "/api/v1/repositories_v2/repo/helmcharts";
 	}
 
 	// Create creates a repo or a repo credential set
@@ -177,7 +177,7 @@ service RepositoryService {
 
 	// DeleteRepositoryACK deletes a repository from the configuration
 	rpc DeleteRepositoryACK(RepoQuery) returns (RepoResponse) {
-		option (google.api.http).delete = "/api/ack/v1/repositories/repo";
+		option (google.api.http).delete = "/api/v1/repositories_v2/repo";
 	}
 
 	// ValidateAccess validates access to a repository with given parameters
