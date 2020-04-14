@@ -40,6 +40,7 @@ type Client interface {
 	CleanChartCache(chart string, version *semver.Version) error
 	ExtractChart(chart string, version *semver.Version) (string, util.Closer, error)
 	GetIndex() (*Index, error)
+	TestHelmOCI() (bool, error)
 }
 
 func NewClient(repoType string, repoURL string, creds Creds) Client {
@@ -293,4 +294,26 @@ func (c *nativeHelmChart) getChartPath(repoType string, chart string, version *s
 	}
 	return chartPath, nil
 
+}
+
+func (c *nativeHelmChart) TestHelmOCI() (bool, error) {
+	start := time.Now()
+
+	helmCmd, err := NewCmdWithVersion(c.repoPath, HelmOCI)
+	if err != nil {
+		return false, err
+	}
+	defer helmCmd.Close()
+
+	_, err = helmCmd.Login(c.repoURL,c.creds)
+	if err != nil {
+		return false, err
+	}
+	defer func() {
+		_, _ = helmCmd.Logout(c.repoURL,c.creds)
+	}()
+
+	log.WithFields(log.Fields{"seconds": time.Since(start).Seconds()}).Info("took to test helm oci repository")
+
+	return true, nil
 }
