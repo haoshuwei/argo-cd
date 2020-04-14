@@ -299,7 +299,13 @@ func (c *nativeHelmChart) getChartPath(repoType string, chart string, version *s
 func (c *nativeHelmChart) TestHelmOCI() (bool, error) {
 	start := time.Now()
 
-	helmCmd, err := NewCmdWithVersion(c.repoPath, HelmOCI)
+	tmpDir, err := ioutil.TempDir("", "helm")
+	if err != nil {
+		return false, err
+	}
+	defer func() { _ = os.RemoveAll(tmpDir) }()
+
+	helmCmd, err := NewCmdWithVersion(tmpDir, HelmOCI)
 	if err != nil {
 		return false, err
 	}
