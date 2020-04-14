@@ -168,13 +168,13 @@ func NewAccountCanICommand(clientOpts *argocdclient.ClientOptions) *cobra.Comman
 		Short: "Can I",
 		Example: fmt.Sprintf(`
 # Can I sync any app?
-argocd account can-i sync applications '*'
+appcenter account can-i sync applications '*'
 
 # Can I update a project?
-argocd account can-i update projects 'default'
+appcenter account can-i update projects 'default'
 
 # Can I create a cluster?
-argocd account can-i create cluster '*'
+appcenter account can-i create cluster '*'
 
 Actions: %v
 Resources: %v
@@ -222,7 +222,7 @@ func NewAccountListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Comman
 	cmd := &cobra.Command{
 		Use:     "list",
 		Short:   "List accounts",
-		Example: "argocd account list",
+		Example: "appcenter account list",
 		Run: func(c *cobra.Command, args []string) {
 
 			conn, client := argocdclient.NewClientOrDie(clientOpts).NewAccountClientOrDie()
@@ -266,10 +266,10 @@ func NewAccountGetCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command
 		Use:   "get",
 		Short: "Get account details",
 		Example: `# Get the currently logged in account details
-argocd account get
+appcenter account get
 
 # Get details for an account by name
-argocd account get --account <account-name>`,
+appcenter account get --account <account-name>`,
 		Run: func(c *cobra.Command, args []string) {
 			clientset := argocdclient.NewClientOrDie(clientOpts)
 
@@ -336,7 +336,7 @@ func NewAccountGenerateTokenCommand(clientOpts *argocdclient.ClientOptions) *cob
 		Use:   "generate-token",
 		Short: "Generate account token",
 		Example: `# Generate token for the currently logged in account
-argocd account generate-token
+appcenter account generate-token
 
 # Generate token for the account with the specified name
 argocd account generate-token --account <account-name>`,

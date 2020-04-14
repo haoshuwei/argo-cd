@@ -26,7 +26,7 @@ type DisplayedAction struct {
 	Disabled bool
 }
 
-// NewApplicationResourceActionsCommand returns a new instance of an `argocd app actions` command
+// NewApplicationResourceActionsCommand returns a new instance of an `appcenter app actions` command
 func NewApplicationResourceActionsCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "actions",
@@ -41,7 +41,7 @@ func NewApplicationResourceActionsCommand(clientOpts *argocdclient.ClientOptions
 	return command
 }
 
-// NewApplicationResourceActionsListCommand returns a new instance of an `argocd app actions list` command
+// NewApplicationResourceActionsListCommand returns a new instance of an `appcenter app actions list` command
 func NewApplicationResourceActionsListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var namespace string
 	var kind string
@@ -116,7 +116,7 @@ func NewApplicationResourceActionsListCommand(clientOpts *argocdclient.ClientOpt
 	return command
 }
 
-// NewApplicationResourceActionsRunCommand returns a new instance of an `argocd app actions run` command
+// NewApplicationResourceActionsRunCommand returns a new instance of an `appcenter app actions run` command
 func NewApplicationResourceActionsRunCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var namespace string
 	var resourceName string
