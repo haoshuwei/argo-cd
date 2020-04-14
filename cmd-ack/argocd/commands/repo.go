@@ -20,7 +20,7 @@ import (
 	"github.com/argoproj/argo-cd/util/git"
 )
 
-// NewRepoCommand returns a new instance of an `argocd repo` command
+// NewRepoCommand returns a new instance of an `appcenter repo` command
 func NewRepoCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "repo",
@@ -37,7 +37,7 @@ func NewRepoCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	return command
 }
 
-// NewRepoAddCommand returns a new instance of an `argocd repo add` command
+// NewRepoAddCommand returns a new instance of an `appcenter repo add` command
 func NewRepoAddCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		repo                           appsv1.Repository
@@ -52,22 +52,22 @@ func NewRepoAddCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 
 	// For better readability and easier formatting
 	var repoAddExamples = `  # Add a Git repository via SSH using a private key for authentication, ignoring the server's host key:
-	argocd repo add git@git.example.com:repos/repo --insecure-ignore-host-key --ssh-private-key-path ~/id_rsa
+	appcenter repo add git@git.example.com:repos/repo --insecure-ignore-host-key --ssh-private-key-path ~/id_rsa
 
 	# Add a Git repository via SSH on a non-default port - need to use ssh:// style URLs here
-	argocd repo add ssh://git@git.example.com:2222/repos/repo --ssh-private-key-path ~/id_rsa
+	appcenter repo add ssh://git@git.example.com:2222/repos/repo --ssh-private-key-path ~/id_rsa
 
   # Add a private Git repository via HTTPS using username/password and TLS client certificates:
-  argocd repo add https://git.example.com/repos/repo --username git --password secret --tls-client-cert-path ~/mycert.crt --tls-client-cert-key-path ~/mycert.key
+  appcenter repo add https://git.example.com/repos/repo --username git --password secret --tls-client-cert-path ~/mycert.crt --tls-client-cert-key-path ~/mycert.key
 
   # Add a private Git repository via HTTPS using username/password without verifying the server's TLS certificate
-  argocd repo add https://git.example.com/repos/repo --username git --password secret --insecure-skip-server-verification
+  appcenter repo add https://git.example.com/repos/repo --username git --password secret --insecure-skip-server-verification
 
   # Add a public Helm repository named 'stable' via HTTPS
-  argocd repo add https://kubernetes-charts.storage.googleapis.com --type helm --name stable  
+  appcenter repo add https://kubernetes-charts.storage.googleapis.com --type helm --name stable  
 
   # Add a private Helm repository named 'stable' via HTTPS
-  argocd repo add https://kubernetes-charts.storage.googleapis.com --type helm --name stable --username test --password test
+  appcenter repo add https://kubernetes-charts.storage.googleapis.com --type helm --name stable --username test --password test
 `
 
 	var command = &cobra.Command{
@@ -184,7 +184,7 @@ func NewRepoAddCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	return command
 }
 
-// NewRepoRemoveCommand returns a new instance of an `argocd repo list` command
+// NewRepoRemoveCommand returns a new instance of an `appcenter repo list` command
 func NewRepoRemoveCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "rm REPO",
@@ -232,7 +232,7 @@ func printRepoUrls(repos appsv1.Repositories) {
 	}
 }
 
-// NewRepoListCommand returns a new instance of an `argocd repo rm` command
+// NewRepoListCommand returns a new instance of an `appcenter repo rm` command
 func NewRepoListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		output  string

@@ -64,11 +64,11 @@ COPY --from=builder /usr/local/bin/helm2 /usr/local/bin/helm2
 COPY --from=builder /usr/local/bin/helm /usr/local/bin/helm
 COPY --from=builder /usr/local/bin/kubectl /usr/local/bin/kubectl
 COPY --from=builder /usr/local/bin/kustomize /usr/local/bin/kustomize
-COPY --from=builder /usr/local/bin/argocd-application-controller /usr/local/bin/argocd-application-controller
-COPY --from=builder /usr/local/bin/argocd-repo-server /usr/local/bin/argocd-repo-server
-COPY --from=builder /usr/local/bin/argocd-util /usr/local/bin/argocd-util
-COPY --from=builder /usr/local/bin/argocd-server /usr/local/bin/argocd-server
-COPY --from=builder /usr/local/bin/argocd /usr/local/bin/argocd
+COPY --from=builder /usr/local/bin/appcenter-application-controller /usr/local/bin/appcenter-application-controller
+COPY --from=builder /usr/local/bin/appcenter-repo-server /usr/local/bin/appcenter-repo-server
+COPY --from=builder /usr/local/bin/appcenter-util /usr/local/bin/appcenter-util
+COPY --from=builder /usr/local/bin/appcenter-server /usr/local/bin/appcenter-server
+COPY --from=builder /usr/local/bin/appcenter /usr/local/bin/appcenter
 #COPY --from=builder /tmp/app /shared/app
 
 
@@ -129,7 +129,7 @@ RUN NODE_ENV='production' yarn build
 # Perform the build
 #WORKDIR /go/src/github.com/argoproj/argo-cd
 #COPY . .
-#RUN make cli server controller repo-server argocd-util && \
+#RUN make appcenter appcenter-server appcenter-controller appcenter-repo-server appcenter-util && \
 #    make CLI_NAME=argocd-darwin-amd64 GOOS=darwin cli && \
 #    make CLI_NAME=argocd-windows-amd64.exe GOOS=windows cli
 

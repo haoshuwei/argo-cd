@@ -19,7 +19,7 @@ import (
 	"github.com/argoproj/argo-cd/util"
 )
 
-// NewProjectWindowsCommand returns a new instance of the `argocd proj windows` command
+// NewProjectWindowsCommand returns a new instance of the `appcenter proj windows` command
 func NewProjectWindowsCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	roleCommand := &cobra.Command{
 		Use:   "windows",
@@ -38,12 +38,12 @@ func NewProjectWindowsCommand(clientOpts *argocdclient.ClientOptions) *cobra.Com
 	return roleCommand
 }
 
-// NewProjectSyncWindowsDisableManualSyncCommand returns a new instance of an `argocd proj windows disable-manual-sync` command
+// NewProjectSyncWindowsDisableManualSyncCommand returns a new instance of an `appcenter proj windows disable-manual-sync` command
 func NewProjectWindowsDisableManualSyncCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "disable-manual-sync PROJECT ID",
 		Short: "Disable manual sync for a sync window",
-		Long:  "Disable manual sync for a sync window. Requires ID which can be found by running \"argocd proj windows list PROJECT\"",
+		Long:  "Disable manual sync for a sync window. Requires ID which can be found by running \"appcenter proj windows list PROJECT\"",
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) != 2 {
 				c.HelpFunc()(c, args)
@@ -73,12 +73,12 @@ func NewProjectWindowsDisableManualSyncCommand(clientOpts *argocdclient.ClientOp
 	return command
 }
 
-// NewProjectWindowsEnableManualSyncCommand returns a new instance of an `argocd proj windows enable-manual-sync` command
+// NewProjectWindowsEnableManualSyncCommand returns a new instance of an `appcenter proj windows enable-manual-sync` command
 func NewProjectWindowsEnableManualSyncCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "enable-manual-sync PROJECT ID",
 		Short: "Enable manual sync for a sync window",
-		Long:  "Enable manual sync for a sync window. Requires ID which can be found by running \"argocd proj windows list PROJECT\"",
+		Long:  "Enable manual sync for a sync window. Requires ID which can be found by running \"appcenter proj windows list PROJECT\"",
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) != 2 {
 				c.HelpFunc()(c, args)
@@ -108,7 +108,7 @@ func NewProjectWindowsEnableManualSyncCommand(clientOpts *argocdclient.ClientOpt
 	return command
 }
 
-// NewProjectWindowsAddWindowCommand returns a new instance of an `argocd proj windows add` command
+// NewProjectWindowsAddWindowCommand returns a new instance of an `appcenter proj windows add` command
 func NewProjectWindowsAddWindowCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		kind         string
@@ -152,11 +152,11 @@ func NewProjectWindowsAddWindowCommand(clientOpts *argocdclient.ClientOptions) *
 	return command
 }
 
-// NewProjectWindowsAddWindowCommand returns a new instance of an `argocd proj windows delete` command
+// NewProjectWindowsAddWindowCommand returns a new instance of an `appcenter proj windows delete` command
 func NewProjectWindowsDeleteCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "delete PROJECT ID",
-		Short: "Delete a sync window from a project. Requires ID which can be found by running \"argocd proj windows list PROJECT\"",
+		Short: "Delete a sync window from a project. Requires ID which can be found by running \"appcenter proj windows list PROJECT\"",
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) != 2 {
 				c.HelpFunc()(c, args)
@@ -183,7 +183,7 @@ func NewProjectWindowsDeleteCommand(clientOpts *argocdclient.ClientOptions) *cob
 	return command
 }
 
-// NewProjectWindowsUpdateCommand returns a new instance of an `argocd proj windows update` command
+// NewProjectWindowsUpdateCommand returns a new instance of an `appcenter proj windows update` command
 func NewProjectWindowsUpdateCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		schedule     string
@@ -195,7 +195,7 @@ func NewProjectWindowsUpdateCommand(clientOpts *argocdclient.ClientOptions) *cob
 	var command = &cobra.Command{
 		Use:   "update PROJECT ID",
 		Short: "Update a project sync window",
-		Long:  "Update a project sync window. Requires ID which can be found by running \"argocd proj windows list PROJECT\"",
+		Long:  "Update a project sync window. Requires ID which can be found by running \"appcenter proj windows list PROJECT\"",
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) != 2 {
 				c.HelpFunc()(c, args)
@@ -233,7 +233,7 @@ func NewProjectWindowsUpdateCommand(clientOpts *argocdclient.ClientOptions) *cob
 	return command
 }
 
-// NewProjectWindowsListCommand returns a new instance of an `argocd proj windows list` command
+// NewProjectWindowsListCommand returns a new instance of an `appcenter proj windows list` command
 func NewProjectWindowsListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		output string

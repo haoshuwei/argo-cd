@@ -16,7 +16,7 @@ import (
 	"github.com/argoproj/argo-cd/util/localconfig"
 )
 
-// NewContextCommand returns a new instance of an `argocd ctx` command
+// NewContextCommand returns a new instance of an `appcenter ctx` command
 func NewContextCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var delete bool
 	var command = &cobra.Command{

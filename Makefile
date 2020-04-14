@@ -148,6 +148,10 @@ codegen: test-tools-image
 cli: clean-debug
 	CGO_ENABLED=0 ${PACKR_CMD} build -v -i -ldflags '${LDFLAGS}' -o ${DIST_DIR}/${CLI_NAME} ./cmd/argocd
 
+.PHONY: appcenter
+appcenter: clean-debug
+	CGO_ENABLED=0 ${PACKR_CMD} build -v -i -ldflags '${LDFLAGS}' -o ${DIST_DIR}/appcenter ./cmd-ack/argocd
+
 .PHONY: cli-docker
 	go build -v -i -ldflags '${LDFLAGS}' -o ${DIST_DIR}/${CLI_NAME} ./cmd/argocd
 
@@ -158,6 +162,11 @@ release-cli: clean-debug image
 	docker cp tmp-argocd-linux:/usr/local/bin/argocd-darwin-amd64 ${DIST_DIR}/argocd-darwin-amd64
 	docker cp tmp-argocd-linux:/usr/local/bin/argocd-windows-amd64.exe ${DIST_DIR}/argocd-windows-amd64.exe
 	docker rm tmp-argocd-linux
+
+.PHONY: appcenter-util
+appcenter-util: clean-debug
+	# Build argocd-util as a statically linked binary, so it could run within the alpine-based dex container (argoproj/argo-cd#844)
+	CGO_ENABLED=0 ${PACKR_CMD} build -v -i -ldflags '${LDFLAGS}' -o ${DIST_DIR}/appcenter-util ./cmd-ack/argocd-util
 
 .PHONY: argocd-util
 argocd-util: clean-debug
@@ -196,6 +205,18 @@ repo-server:
 .PHONY: controller
 controller:
 	CGO_ENABLED=0 ${PACKR_CMD} build -v -i -ldflags '${LDFLAGS}' -o ${DIST_DIR}/argocd-application-controller ./cmd/argocd-application-controller
+
+.PHONY: appcenter-server
+appcenter-server: clean-debug
+	CGO_ENABLED=0 ${PACKR_CMD} build -v -i -ldflags '${LDFLAGS}' -o ${DIST_DIR}/appcenter-server ./cmd-ack/argocd-server
+
+.PHONY: appcenter-repo-server
+appcenter-repo-server:
+	CGO_ENABLED=0 ${PACKR_CMD} build -v -i -ldflags '${LDFLAGS}' -o ${DIST_DIR}/appcenter-repo-server ./cmd-ack/argocd-repo-server
+
+.PHONY: appcenter-controller
+appcenter-controller:
+	CGO_ENABLED=0 ${PACKR_CMD} build -v -i -ldflags '${LDFLAGS}' -o ${DIST_DIR}/appcenter-application-controller ./cmd-ack/argocd-application-controller
 
 .PHONY: packr
 packr:
