@@ -24,7 +24,7 @@ import (
 	"github.com/argoproj/argo-cd/util/clusterauth"
 )
 
-// NewClusterCommand returns a new instance of an `appcenter cluster` command
+// NewClusterCommand returns a new instance of an `argocd cluster` command
 func NewClusterCommand(clientOpts *argocdclient.ClientOptions, pathOpts *clientcmd.PathOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "cluster",
@@ -34,16 +34,16 @@ func NewClusterCommand(clientOpts *argocdclient.ClientOptions, pathOpts *clientc
 			os.Exit(1)
 		},
 		Example: `  # List all known clusters in JSON format:
-  appcenter cluster list -o json
+  argocd cluster list -o json
 
-  # Add a target cluster configuration to App Center. The context must exist in your kubectl config:
-  appcenter cluster add example-cluster
+  # Add a target cluster configuration to ArgoCD. The context must exist in your kubectl config:
+  argocd cluster add example-cluster
 
   # Get specific details about a cluster in plain text (wide) format:
-  appcenter cluster get example-cluster -o wide
+  argocd cluster get example-cluster -o wide
 
   #	Remove a target cluster context from ArgoCD
-  appcenter cluster rm example-cluster
+  argocd cluster rm example-cluster
 `,
 	}
 
@@ -55,7 +55,7 @@ func NewClusterCommand(clientOpts *argocdclient.ClientOptions, pathOpts *clientc
 	return command
 }
 
-// NewClusterAddCommand returns a new instance of an `appcenter cluster add` command
+// NewClusterAddCommand returns a new instance of an `argocd cluster add` command
 func NewClusterAddCommand(clientOpts *argocdclient.ClientOptions, pathOpts *clientcmd.PathOptions) *cobra.Command {
 	var (
 		inCluster       bool
@@ -125,7 +125,7 @@ func NewClusterAddCommand(clientOpts *argocdclient.ClientOptions, pathOpts *clie
 		},
 	}
 	command.PersistentFlags().StringVar(&pathOpts.LoadingRules.ExplicitPath, pathOpts.ExplicitFileFlag, pathOpts.LoadingRules.ExplicitPath, "use a particular kubeconfig file")
-	command.Flags().BoolVar(&inCluster, "in-cluster", false, "Indicates App Center resides inside this cluster and should connect using the internal k8s hostname (kubernetes.default.svc)")
+	command.Flags().BoolVar(&inCluster, "in-cluster", false, "Indicates Argo CD resides inside this cluster and should connect using the internal k8s hostname (kubernetes.default.svc)")
 	command.Flags().BoolVar(&upsert, "upsert", false, "Override an existing cluster with the same name even if the spec differs")
 	command.Flags().StringVar(&serviceAccount, "service-account", "", fmt.Sprintf("System namespace service account to use for kubernetes resource management. If not set then default \"%s\" SA will be created", clusterauth.ArgoCDManagerServiceAccount))
 	command.Flags().StringVar(&awsClusterName, "aws-cluster-name", "", "AWS Cluster name if set then aws cli eks token command will be used to access cluster")
@@ -198,7 +198,7 @@ func newCluster(name string, namespaces []string, conf *rest.Config, managerBear
 	return &clst
 }
 
-// NewClusterGetCommand returns a new instance of an `appcenter cluster get` command
+// NewClusterGetCommand returns a new instance of an `argocd cluster get` command
 func NewClusterGetCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		output string
@@ -206,7 +206,7 @@ func NewClusterGetCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command
 	var command = &cobra.Command{
 		Use:     "get SERVER",
 		Short:   "Get cluster information",
-		Example: `appcenter cluster get https://12.34.567.89`,
+		Example: `argocd cluster get https://12.34.567.89`,
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) == 0 {
 				c.HelpFunc()(c, args)
@@ -270,12 +270,12 @@ func printClusterDetails(clusters []argoappv1.Cluster) {
 	}
 }
 
-// NewClusterRemoveCommand returns a new instance of an `appcenter cluster list` command
+// NewClusterRemoveCommand returns a new instance of an `argocd cluster list` command
 func NewClusterRemoveCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:     "rm SERVER",
 		Short:   "Remove cluster credentials",
-		Example: `appcenter cluster rm https://12.34.567.89`,
+		Example: `argocd cluster rm https://12.34.567.89`,
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) == 0 {
 				c.HelpFunc()(c, args)
@@ -320,7 +320,7 @@ func printClusterServers(clusters []argoappv1.Cluster) {
 	}
 }
 
-// NewClusterListCommand returns a new instance of an `appcenter cluster rm` command
+// NewClusterListCommand returns a new instance of an `argocd cluster rm` command
 func NewClusterListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		output string
@@ -350,7 +350,7 @@ func NewClusterListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Comman
 	return command
 }
 
-// NewClusterRotateAuthCommand returns a new instance of an `appcenter cluster rotate-auth` command
+// NewClusterRotateAuthCommand returns a new instance of an `argocd cluster rotate-auth` command
 func NewClusterRotateAuthCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:     "rotate-auth SERVER",

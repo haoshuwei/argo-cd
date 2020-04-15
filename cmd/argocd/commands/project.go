@@ -60,7 +60,7 @@ func (opts *projectOpts) GetDestinations() []v1alpha1.ApplicationDestination {
 	return destinations
 }
 
-// NewProjectCommand returns a new instance of an `appcenter proj` command
+// NewProjectCommand returns a new instance of an `argocd proj` command
 func NewProjectCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "proj",
@@ -121,7 +121,7 @@ func humanizeTimestamp(epoch int64) string {
 	return fmt.Sprintf("%s (%s)", ts.Format(time.RFC3339), humanize.Time(ts))
 }
 
-// NewProjectCreateCommand returns a new instance of an `appcenter proj create` command
+// NewProjectCreateCommand returns a new instance of an `argocd proj create` command
 func NewProjectCreateCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		opts    projectOpts
@@ -185,7 +185,7 @@ func NewProjectCreateCommand(clientOpts *argocdclient.ClientOptions) *cobra.Comm
 	return command
 }
 
-// NewProjectSetCommand returns a new instance of an `appcenter proj set` command
+// NewProjectSetCommand returns a new instance of an `argocd proj set` command
 func NewProjectSetCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		opts projectOpts
@@ -233,7 +233,7 @@ func NewProjectSetCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command
 	return command
 }
 
-// NewProjectAddDestinationCommand returns a new instance of an `appcenter proj add-destination` command
+// NewProjectAddDestinationCommand returns a new instance of an `argocd proj add-destination` command
 func NewProjectAddDestinationCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "add-destination PROJECT SERVER NAMESPACE",
@@ -265,7 +265,7 @@ func NewProjectAddDestinationCommand(clientOpts *argocdclient.ClientOptions) *co
 	return command
 }
 
-// NewProjectRemoveDestinationCommand returns a new instance of an `appcenter proj remove-destination` command
+// NewProjectRemoveDestinationCommand returns a new instance of an `argocd proj remove-destination` command
 func NewProjectRemoveDestinationCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "remove-destination PROJECT SERVER NAMESPACE",
@@ -304,7 +304,7 @@ func NewProjectRemoveDestinationCommand(clientOpts *argocdclient.ClientOptions) 
 	return command
 }
 
-// NewProjectAddSourceCommand returns a new instance of an `appcenter proj add-src` command
+// NewProjectAddSourceCommand returns a new instance of an `argocd proj add-src` command
 func NewProjectAddSourceCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "add-source PROJECT URL",
@@ -385,7 +385,7 @@ func NewProjectAllowNamespaceResourceCommand(clientOpts *argocdclient.ClientOpti
 	})
 }
 
-// NewProjectDenyNamespaceResourceCommand returns a new instance of an `appcenter proj deny-namespace-resource` command
+// NewProjectDenyNamespaceResourceCommand returns a new instance of an `argocd proj deny-namespace-resource` command
 func NewProjectDenyNamespaceResourceCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	use := "deny-namespace-resource PROJECT GROUP KIND"
 	desc := "Adds a namespaced API resource to the blacklist"
@@ -422,7 +422,7 @@ func NewProjectDenyClusterResourceCommand(clientOpts *argocdclient.ClientOptions
 	})
 }
 
-// NewProjectAllowClusterResourceCommand returns a new instance of an `appcenter proj allow-cluster-resource` command
+// NewProjectAllowClusterResourceCommand returns a new instance of an `argocd proj allow-cluster-resource` command
 func NewProjectAllowClusterResourceCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	use := "allow-cluster-resource PROJECT GROUP KIND"
 	desc := "Adds a cluster-scoped API resource to the whitelist"
@@ -438,7 +438,7 @@ func NewProjectAllowClusterResourceCommand(clientOpts *argocdclient.ClientOption
 	})
 }
 
-// NewProjectRemoveSourceCommand returns a new instance of an `appcenter proj remove-src` command
+// NewProjectRemoveSourceCommand returns a new instance of an `argocd proj remove-src` command
 func NewProjectRemoveSourceCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "remove-source PROJECT URL",
@@ -476,7 +476,7 @@ func NewProjectRemoveSourceCommand(clientOpts *argocdclient.ClientOptions) *cobr
 	return command
 }
 
-// NewProjectDeleteCommand returns a new instance of an `appcenter proj delete` command
+// NewProjectDeleteCommand returns a new instance of an `argocd proj delete` command
 func NewProjectDeleteCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "delete PROJECT",
@@ -514,7 +514,7 @@ func printProjectTable(projects []v1alpha1.AppProject) {
 	_ = w.Flush()
 }
 
-// NewProjectListCommand returns a new instance of an `appcenter proj list` command
+// NewProjectListCommand returns a new instance of an `argocd proj list` command
 func NewProjectListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		output string
@@ -635,7 +635,7 @@ func printProject(p *v1alpha1.AppProject) {
 
 }
 
-// NewProjectGetCommand returns a new instance of an `appcenter proj get` command
+// NewProjectGetCommand returns a new instance of an `argocd proj get` command
 func NewProjectGetCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		output string

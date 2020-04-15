@@ -20,7 +20,7 @@ import (
 	"crypto/x509"
 )
 
-// NewCertCommand returns a new instance of an `appcenter repo` command
+// NewCertCommand returns a new instance of an `argocd repo` command
 func NewCertCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "cert",
@@ -29,23 +29,23 @@ func NewCertCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 			c.HelpFunc()(c, args)
 			os.Exit(1)
 		},
-		Example: `  # Add a TLS certificate for cd.example.com to App Center cert store from a file
-  appcenter cert add-tls --from ~/mycert.pem cd.example.com
+		Example: `  # Add a TLS certificate for cd.example.com to ArgoCD cert store from a file
+  argocd cert add-tls --from ~/mycert.pem cd.example.com
 
   # Add a TLS certificate for cd.example.com to ArgoCD via stdin
-  cat ~/mycert.pem | appcenter cert add-tls cd.example.com
+  cat ~/mycert.pem | argocd cert add-tls cd.example.com
 
   # Add SSH known host entries for cd.example.com to ArgoCD by scanning host
-  ssh-keyscan cd.example.com | appcenter cert add-ssh --batch
+  ssh-keyscan cd.example.com | argocd cert add-ssh --batch
 
   # List all known TLS certificates
-  appcenter cert list --cert-type https
+  argocd cert list --cert-type https
 
   # Remove all TLS certificates for cd.example.com
-  appcenter cert rm --cert-type https cd.example.com
+  argocd cert rm --cert-type https cd.example.com
 
   # Remove all certificates and SSH known host entries for cd.example.com
-  appcenter cert rm cd.example.com
+  argocd cert rm cd.example.com
 `,
 	}
 
@@ -134,7 +134,7 @@ func NewCertAddTLSCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command
 	return command
 }
 
-// NewCertAddCommand returns a new instance of an `appcenter cert add` command
+// NewCertAddCommand returns a new instance of an `argocd cert add` command
 func NewCertAddSSHCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		fromFile     string
@@ -205,7 +205,7 @@ func NewCertAddSSHCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command
 	return command
 }
 
-// NewCertRemoveCommand returns a new instance of an `appcenter cert rm` command
+// NewCertRemoveCommand returns a new instance of an `argocd cert rm` command
 func NewCertRemoveCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		certType    string
@@ -253,7 +253,7 @@ func NewCertRemoveCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command
 	return command
 }
 
-// NewCertListCommand returns a new instance of an `appcenter cert rm` command
+// NewCertListCommand returns a new instance of an `argocd cert rm` command
 func NewCertListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		certType        string

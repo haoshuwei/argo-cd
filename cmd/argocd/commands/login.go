@@ -27,7 +27,7 @@ import (
 	"github.com/argoproj/argo-cd/util/rand"
 )
 
-// NewLoginCommand returns a new instance of `appcenter login` command
+// NewLoginCommand returns a new instance of `argocd login` command
 func NewLoginCommand(globalClientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		ctxName  string
@@ -38,8 +38,8 @@ func NewLoginCommand(globalClientOpts *argocdclient.ClientOptions) *cobra.Comman
 	)
 	var command = &cobra.Command{
 		Use:   "login SERVER",
-		Short: "Log in to App Center",
-		Long:  "Log in to App Center",
+		Short: "Log in to Argo CD",
+		Long:  "Log in to Argo CD",
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) == 0 {
 				c.HelpFunc()(c, args)

@@ -52,16 +52,16 @@ import (
 var (
 	appExample = templates.Examples(`
 	# List all the applications.
-	appcenter app list
+	argocd app list
 
 	# Get the details of a application
-	appcenter app get my-app
+	argocd app get my-app
 
 	# Set an override parameter
-	appcenter app set my-app -p image.tag=v1.0.1`)
+	argocd app set my-app -p image.tag=v1.0.1`)
 )
 
-// NewApplicationCommand returns a new instance of an `appcenter app` command
+// NewApplicationCommand returns a new instance of an `argocd app` command
 func NewApplicationCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:     "app",
@@ -92,7 +92,7 @@ func NewApplicationCommand(clientOpts *argocdclient.ClientOptions) *cobra.Comman
 	return command
 }
 
-// NewApplicationCreateCommand returns a new instance of an `appcenter app create` command
+// NewApplicationCreateCommand returns a new instance of an `argocd app create` command
 func NewApplicationCreateCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		appOpts appOptions
@@ -106,22 +106,22 @@ func NewApplicationCreateCommand(clientOpts *argocdclient.ClientOptions) *cobra.
 		Short: "Create an application",
 		Example: `
 	# Create a directory app
-	appcenter app create guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path guestbook --dest-namespace default --dest-server https://kubernetes.default.svc --directory-recurse
+	argocd app create guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path guestbook --dest-namespace default --dest-server https://kubernetes.default.svc --directory-recurse
 
 	# Create a Jsonnet app
-	appcenter app create jsonnet-guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path jsonnet-guestbook --dest-namespace default --dest-server https://kubernetes.default.svc --jsonnet-ext-str replicas=2
+	argocd app create jsonnet-guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path jsonnet-guestbook --dest-namespace default --dest-server https://kubernetes.default.svc --jsonnet-ext-str replicas=2
 
 	# Create a Helm app
-	appcenter app create helm-guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path helm-guestbook --dest-namespace default --dest-server https://kubernetes.default.svc --helm-set replicaCount=2
+	argocd app create helm-guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path helm-guestbook --dest-namespace default --dest-server https://kubernetes.default.svc --helm-set replicaCount=2
 
 	# Create a Helm app from a Helm repo
-	appcenter app create nginx-ingress --repo https://kubernetes-charts.storage.googleapis.com --helm-chart nginx-ingress --revision 1.24.3 --dest-namespace default --dest-server https://kubernetes.default.svc
+	argocd app create nginx-ingress --repo https://kubernetes-charts.storage.googleapis.com --helm-chart nginx-ingress --revision 1.24.3 --dest-namespace default --dest-server https://kubernetes.default.svc
 
 	# Create a Kustomize app
-	appcenter app create kustomize-guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path kustomize-guestbook --dest-namespace default --dest-server https://kubernetes.default.svc --kustomize-image gcr.io/heptio-images/ks-guestbook-demo=0.1
+	argocd app create kustomize-guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path kustomize-guestbook --dest-namespace default --dest-server https://kubernetes.default.svc --kustomize-image gcr.io/heptio-images/ks-guestbook-demo=0.1
 
 	# Create a app using a custom tool:
-	appcenter app create ksane --repo https://github.com/argoproj/argocd-example-apps.git --path plugins/kasane --dest-namespace default --dest-server https://kubernetes.default.svc --config-management-plugin kasane
+	argocd app create ksane --repo https://github.com/argoproj/argocd-example-apps.git --path plugins/kasane --dest-namespace default --dest-server https://kubernetes.default.svc --config-management-plugin kasane
 `,
 		Run: func(c *cobra.Command, args []string) {
 			var app argoappv1.Application
@@ -214,7 +214,7 @@ func getRefreshType(refresh bool, hardRefresh bool) *string {
 	return nil
 }
 
-// NewApplicationGetCommand returns a new instance of an `appcenter app get` command
+// NewApplicationGetCommand returns a new instance of an `argocd app get` command
 func NewApplicationGetCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		refresh       bool
@@ -432,7 +432,7 @@ func printParams(app *argoappv1.Application) {
 	_ = w.Flush()
 }
 
-// NewApplicationSetCommand returns a new instance of an `appcenter app set` command
+// NewApplicationSetCommand returns a new instance of an `argocd app set` command
 func NewApplicationSetCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		appOpts appOptions
@@ -729,7 +729,7 @@ func addAppFlags(command *cobra.Command, opts *appOptions) {
 	command.Flags().StringArrayVar(&opts.kustomizeImages, "kustomize-image", []string{}, "Kustomize images (e.g. --kustomize-image node:8.15.0 --kustomize-image mysql=mariadb,alpine@sha256:24a0c4b4a4c0eb97a1aabb8e29f18e917d05abfe1b7a7c07857230879ce7d3d)")
 }
 
-// NewApplicationUnsetCommand returns a new instance of an `appcenter app unset` command
+// NewApplicationUnsetCommand returns a new instance of an `argocd app unset` command
 func NewApplicationUnsetCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		parameters      []string
@@ -742,13 +742,13 @@ func NewApplicationUnsetCommand(clientOpts *argocdclient.ClientOptions) *cobra.C
 		Use:   "unset APPNAME parameters",
 		Short: "Unset application parameters",
 		Example: `  # Unset kustomize override kustomize image
-  appcenter app unset my-app --kustomize-image=alpine
+  argocd app unset my-app --kustomize-image=alpine
 
   # Unset kustomize override prefix
-  appcenter app unset my-app --namesuffix
+  argocd app unset my-app --namesuffix
 
   # Unset parameter override
-  appcenter app unset my-app -p COMPONENT=PARAM`,
+  argocd app unset my-app -p COMPONENT=PARAM`,
 
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) != 1 {
@@ -936,7 +936,7 @@ func groupLocalObjs(localObs []*unstructured.Unstructured, liveObjs []*unstructu
 	return objByKey
 }
 
-// NewApplicationDiffCommand returns a new instance of an `appcenter app diff` command
+// NewApplicationDiffCommand returns a new instance of an `argocd app diff` command
 func NewApplicationDiffCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		refresh     bool
@@ -1090,7 +1090,7 @@ func NewApplicationDiffCommand(clientOpts *argocdclient.ClientOptions) *cobra.Co
 	return command
 }
 
-// NewApplicationDeleteCommand returns a new instance of an `appcenter app delete` command
+// NewApplicationDeleteCommand returns a new instance of an `argocd app delete` command
 func NewApplicationDeleteCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		cascade bool
@@ -1159,7 +1159,7 @@ func printApplicationTable(apps []argoappv1.Application, output *string) {
 	_ = w.Flush()
 }
 
-// NewApplicationListCommand returns a new instance of an `appcenter app list` command
+// NewApplicationListCommand returns a new instance of an `argocd app list` command
 func NewApplicationListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		output   string
@@ -1170,10 +1170,10 @@ func NewApplicationListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Co
 		Use:   "list",
 		Short: "List applications",
 		Example: `  # List all apps
-  appcenter app list
+  argocd app list
 
   # List apps by label, in this example we listing apps that are children of another app (aka app-of-apps)
-  appcenter app list -l app.kubernetes.io/instance=my-app`,
+  argocd app list -l app.kubernetes.io/instance=my-app`,
 		Run: func(c *cobra.Command, args []string) {
 			conn, appIf := argocdclient.NewClientOrDie(clientOpts).NewApplicationClientOrDie()
 			defer util.Close(conn)
@@ -1263,7 +1263,7 @@ func parseSelectedResources(resources []string) []argoappv1.SyncOperationResourc
 	return selectedResources
 }
 
-// NewApplicationWaitCommand returns a new instance of an `appcenter app wait` command
+// NewApplicationWaitCommand returns a new instance of an `argocd app wait` command
 func NewApplicationWaitCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		watchSync       bool
@@ -1278,13 +1278,13 @@ func NewApplicationWaitCommand(clientOpts *argocdclient.ClientOptions) *cobra.Co
 		Use:   "wait [APPNAME.. | -l selector]",
 		Short: "Wait for an application to reach a synced and healthy state",
 		Example: `  # Wait for an app
-  appcenter app wait my-app
+  argocd app wait my-app
 
   # Wait for multiple apps
-  appcenter app wait my-app other-app
+  argocd app wait my-app other-app
 
   # Wait for apps by label, in this example we waiting for apps that are children of another app (aka app-of-apps)
-  appcenter app wait -l app.kubernetes.io/instance=apps`,
+  argocd app wait -l app.kubernetes.io/instance=apps`,
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) == 0 && selector == "" {
 				c.HelpFunc()(c, args)
@@ -1332,7 +1332,7 @@ func printAppResources(w io.Writer, app *argoappv1.Application) {
 	}
 }
 
-// NewApplicationSyncCommand returns a new instance of an `appcenter app sync` command
+// NewApplicationSyncCommand returns a new instance of an `argocd app sync` command
 func NewApplicationSyncCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		revision  string
@@ -1351,18 +1351,18 @@ func NewApplicationSyncCommand(clientOpts *argocdclient.ClientOptions) *cobra.Co
 		Use:   "sync [APPNAME... | -l selector]",
 		Short: "Sync an application to its target state",
 		Example: `  # Sync an app
-  appcenter app sync my-app
+  argocd app sync my-app
 
   # Sync multiples apps
-  appcenter app sync my-app other-app
+  argocd app sync my-app other-app
 
   # Sync apps by label, in this example we sync apps that are children of another app (aka app-of-apps)
-  appcenter app sync -l app.kubernetes.io/instance=my-app
+  argocd app sync -l app.kubernetes.io/instance=my-app
 
   # Sync a specific resource
   # Resource should be formatted as GROUP:KIND:NAME. If no GROUP is specified then :KIND:NAME
-  appcenter app sync my-app --resource :Service:my-service
-  appcenter app sync my-app --resource argoproj.io:Rollout:my-rollout`,
+  argocd app sync my-app --resource :Service:my-service
+  argocd app sync my-app --resource argoproj.io:Rollout:my-rollout`,
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) == 0 && selector == "" {
 				c.HelpFunc()(c, args)
@@ -1745,7 +1745,7 @@ func setParameterOverrides(app *argoappv1.Application, parameters []string) {
 	} else {
 		// HACK: we don't know the source type, so make an educated guess based on the supplied
 		// parameter string. This code handles the corner case where app doesn't exist yet, and the
-		// command is something like: `appcenter app create MYAPP -p foo=bar`
+		// command is something like: `argocd app create MYAPP -p foo=bar`
 		// This logic is not foolproof, but when ksonnet is deprecated, this will no longer matter
 		// since helm will remain as the only source type which has parameters.
 		if len(strings.SplitN(parameters[0], "=", 3)) == 3 {
@@ -1820,7 +1820,7 @@ func printApplicationHistoryTable(revHistory []argoappv1.RevisionHistory) {
 	_ = w.Flush()
 }
 
-// NewApplicationHistoryCommand returns a new instance of an `appcenter app history` command
+// NewApplicationHistoryCommand returns a new instance of an `argocd app history` command
 func NewApplicationHistoryCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		output string
@@ -1849,7 +1849,7 @@ func NewApplicationHistoryCommand(clientOpts *argocdclient.ClientOptions) *cobra
 	return command
 }
 
-// NewApplicationRollbackCommand returns a new instance of an `appcenter app rollback` command
+// NewApplicationRollbackCommand returns a new instance of an `argocd app rollback` command
 func NewApplicationRollbackCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		prune   bool
@@ -1925,7 +1925,7 @@ func printOperationResult(opState *argoappv1.OperationState) {
 	}
 }
 
-// NewApplicationManifestsCommand returns a new instance of an `appcenter app manifests` command
+// NewApplicationManifestsCommand returns a new instance of an `argocd app manifests` command
 func NewApplicationManifestsCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		source   string
@@ -1987,7 +1987,7 @@ func NewApplicationManifestsCommand(clientOpts *argocdclient.ClientOptions) *cob
 	return command
 }
 
-// NewApplicationTerminateOpCommand returns a new instance of an `appcenter app terminate-op` command
+// NewApplicationTerminateOpCommand returns a new instance of an `argocd app terminate-op` command
 func NewApplicationTerminateOpCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "terminate-op APPNAME",
@@ -2058,10 +2058,10 @@ func NewApplicationPatchCommand(clientOpts *argocdclient.ClientOptions) *cobra.C
 		Short: "Patch application",
 		Long: `Examples:
 	# Update an application's source path using json patch
-	appcenter app patch myapplication --patch='[{"op": "replace", "path": "/spec/source/path", "value": "newPath"}]' --type json
+	argocd app patch myapplication --patch='[{"op": "replace", "path": "/spec/source/path", "value": "newPath"}]' --type json
 
 	# Update an application's repository target revision using merge patch
-	appcenter app patch myapplication --patch '{"spec": { "source": { "targetRevision": "master" } }}' --type merge`,
+	argocd app patch myapplication --patch '{"spec": { "source": { "targetRevision": "master" } }}' --type merge`,
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) != 1 {
 				c.HelpFunc()(c, args)

@@ -21,7 +21,7 @@ const (
 	policyTemplate = "p, proj:%s:%s, applications, %s, %s/%s, %s"
 )
 
-// NewProjectRoleCommand returns a new instance of the `appcenter proj role` command
+// NewProjectRoleCommand returns a new instance of the `argocd proj role` command
 func NewProjectRoleCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	roleCommand := &cobra.Command{
 		Use:   "role",
@@ -44,7 +44,7 @@ func NewProjectRoleCommand(clientOpts *argocdclient.ClientOptions) *cobra.Comman
 	return roleCommand
 }
 
-// NewProjectRoleAddPolicyCommand returns a new instance of an `appcenter proj role add-policy` command
+// NewProjectRoleAddPolicyCommand returns a new instance of an `argocd proj role add-policy` command
 func NewProjectRoleAddPolicyCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		opts policyOpts
@@ -79,7 +79,7 @@ func NewProjectRoleAddPolicyCommand(clientOpts *argocdclient.ClientOptions) *cob
 	return command
 }
 
-// NewProjectRoleRemovePolicyCommand returns a new instance of an `appcenter proj role remove-policy` command
+// NewProjectRoleRemovePolicyCommand returns a new instance of an `argocd proj role remove-policy` command
 func NewProjectRoleRemovePolicyCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		opts policyOpts
@@ -124,7 +124,7 @@ func NewProjectRoleRemovePolicyCommand(clientOpts *argocdclient.ClientOptions) *
 	return command
 }
 
-// NewProjectRoleCreateCommand returns a new instance of an `appcenter proj role create` command
+// NewProjectRoleCreateCommand returns a new instance of an `argocd proj role create` command
 func NewProjectRoleCreateCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		description string
@@ -161,7 +161,7 @@ func NewProjectRoleCreateCommand(clientOpts *argocdclient.ClientOptions) *cobra.
 	return command
 }
 
-// NewProjectRoleDeleteCommand returns a new instance of an `appcenter proj role delete` command
+// NewProjectRoleDeleteCommand returns a new instance of an `argocd proj role delete` command
 func NewProjectRoleDeleteCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "delete PROJECT ROLE-NAME",
@@ -195,7 +195,7 @@ func NewProjectRoleDeleteCommand(clientOpts *argocdclient.ClientOptions) *cobra.
 	return command
 }
 
-// NewProjectRoleCreateTokenCommand returns a new instance of an `appcenter proj role create-token` command
+// NewProjectRoleCreateTokenCommand returns a new instance of an `argocd proj role create-token` command
 func NewProjectRoleCreateTokenCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		expiresIn string
@@ -224,7 +224,7 @@ func NewProjectRoleCreateTokenCommand(clientOpts *argocdclient.ClientOptions) *c
 	return command
 }
 
-// NewProjectRoleDeleteTokenCommand returns a new instance of an `appcenter proj role delete-token` command
+// NewProjectRoleDeleteTokenCommand returns a new instance of an `argocd proj role delete-token` command
 func NewProjectRoleDeleteTokenCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "delete-token PROJECT ROLE-NAME ISSUED-AT",
@@ -266,7 +266,7 @@ func printProjectRoleListTable(roles []v1alpha1.ProjectRole) {
 	_ = w.Flush()
 }
 
-// NewProjectRoleListCommand returns a new instance of an `appcenter proj roles list` command
+// NewProjectRoleListCommand returns a new instance of an `argocd proj roles list` command
 func NewProjectRoleListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var (
 		output string
@@ -302,7 +302,7 @@ func NewProjectRoleListCommand(clientOpts *argocdclient.ClientOptions) *cobra.Co
 	return command
 }
 
-// NewProjectRoleGetCommand returns a new instance of an `appcenter proj roles get` command
+// NewProjectRoleGetCommand returns a new instance of an `argocd proj roles get` command
 func NewProjectRoleGetCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "get PROJECT ROLE-NAME",
@@ -345,7 +345,7 @@ func NewProjectRoleGetCommand(clientOpts *argocdclient.ClientOptions) *cobra.Com
 	return command
 }
 
-// NewProjectRoleAddGroupCommand returns a new instance of an `appcenter proj role add-group` command
+// NewProjectRoleAddGroupCommand returns a new instance of an `argocd proj role add-group` command
 func NewProjectRoleAddGroupCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "add-group PROJECT ROLE-NAME GROUP-CLAIM",
@@ -374,7 +374,7 @@ func NewProjectRoleAddGroupCommand(clientOpts *argocdclient.ClientOptions) *cobr
 	return command
 }
 
-// NewProjectRoleRemoveGroupCommand returns a new instance of an `appcenter proj role remove-group` command
+// NewProjectRoleRemoveGroupCommand returns a new instance of an `argocd proj role remove-group` command
 func NewProjectRoleRemoveGroupCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
 		Use:   "remove-group PROJECT ROLE-NAME GROUP-CLAIM",

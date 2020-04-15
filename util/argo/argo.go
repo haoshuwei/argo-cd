@@ -145,7 +145,8 @@ func TestRepo(repo *argoappv1.Repository) error {
 		},
 		//TODO: if repo type is helm-oci, add a check func
 		"helm-oci": func() error {
-			return nil
+			_, err := helm.NewClient(repo.Type, repo.Repo, repo.GetHelmCreds()).TestHelmOCI()
+			return err
 		},
 	}
 	if check, ok := checks[repo.Type]; ok {

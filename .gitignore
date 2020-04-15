@@ -10,3 +10,4 @@ debug.test
 coverage.out
 test-results
 #vendor
+*.tgz
