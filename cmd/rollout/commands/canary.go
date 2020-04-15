@@ -20,14 +20,16 @@ func NewCanaryCommand(config *rollout.ClientOptions) *cobra.Command {
 
 	command.AddCommand(NewCanarySetCommand(config))
 	command.AddCommand(NewCanaryListCommand(config))
+	command.AddCommand(NewCanaryConfirmCommand(config))
+	command.AddCommand(NewCanaryRollbackCommand(config))
 	return command
 }
 
 func NewCanarySetCommand(config *rollout.ClientOptions) *cobra.Command {
 
 	var command = &cobra.Command{
-		Use:   "setWeight",
-		Short: "appcenter rollout canary set",
+		Use:     "setWeight",
+		Short:   "appcenter rollout canary set",
 		Example: "appcenter rollout canary setWeight <canaryName> 10",
 		Run: func(c *cobra.Command, args []string) {
 			if len(args) < 2 {
@@ -47,12 +49,46 @@ func NewCanarySetCommand(config *rollout.ClientOptions) *cobra.Command {
 
 func NewCanaryListCommand(config *rollout.ClientOptions) *cobra.Command {
 	var command = &cobra.Command{
-		Use:   "list",
-		Short: "appcenter list canary",
+		Use:     "list",
+		Short:   "appcenter list canary",
 		Example: "appcenter list canary",
 		Run: func(c *cobra.Command, args []string) {
 			controller := rollout.NewCanaryController(config.Kubeconfig)
 			controller.ListCanary(config.Namespace)
+		},
+	}
+
+	return command
+}
+
+func NewCanaryConfirmCommand(config *rollout.ClientOptions) *cobra.Command {
+	var command = &cobra.Command{
+		Use:     "confirm",
+		Short:   "appcenter confirm canary",
+		Example: "appcenter confirm canary <canaryName>",
+		Run: func(c *cobra.Command, args []string) {
+			if len(args) < 1 {
+				log.Fatal("Missing canary name")
+			}
+			controller := rollout.NewCanaryController(config.Kubeconfig)
+			controller.CanaryConfirm(args[0], config.Namespace)
+		},
+	}
+
+	return command
+}
+
+func NewCanaryRollbackCommand(config *rollout.ClientOptions) *cobra.Command {
+	var command = &cobra.Command{
+		Use:     "rollback",
+		Short:   "appcenter rollback canary",
+		Example: "appcenter rollback canary <canaryName>",
+		Run: func(c *cobra.Command, args []string) {
+			if len(args) < 1 {
+				log.Fatal("Missing canary name")
+			}
+			controller := rollout.NewCanaryController(config.Kubeconfig)
+			controller.CanaryRollback(args[0], config.Namespace)
 		},
 	}
 

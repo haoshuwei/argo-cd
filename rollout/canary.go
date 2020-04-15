@@ -68,3 +68,34 @@ func (c *Canary) ListCanary(namespace string) {
 		log.Info(c.Name)
 	}
 }
+
+func (c *Canary) CanaryConfirm(canaryName, namespace string) {
+	canaryObj, err := c.appClient.AppV1beta1().Canaries(namespace).Get(canaryName, v1.GetOptions{})
+	if err != nil {
+		log.Fatalf("Get canary object %s:%s error %v", namespace, canaryName, err)
+	}
+	if canaryObj.Status.Phase != v1beta1.CanaryPhaseProgressing {
+		log.Fatalf("Current canary %s status is %s, can not support canary confirm", canaryName, canaryObj.Status.Phase)
+	}
+	canaryObj.Status.CanaryWeight = 101
+	_, err = c.appClient.AppV1beta1().Canaries(namespace).UpdateStatus(canaryObj)
+	if err != nil {
+		log.Fatalf("Update %s:%s status error %v", namespace, canaryName, err)
+	}
+}
+
+func (c *Canary) CanaryRollback(canaryName, namespace string) {
+	canaryObj, err := c.appClient.AppV1beta1().Canaries(namespace).Get(canaryName, v1.GetOptions{})
+	if err != nil {
+		log.Fatalf("Get canary object %s:%s error %v", namespace, canaryName, err)
+	}
+	if canaryObj.Status.Phase != v1beta1.CanaryPhaseProgressing {
+		log.Fatalf("Current canary %s status is %s, can not support canary confirm", canaryName, canaryObj.Status.Phase)
+	}
+
+	canaryObj.Status.Phase = v1beta1.CanaryPhaseRollback
+	_, err = c.appClient.AppV1beta1().Canaries(namespace).UpdateStatus(canaryObj)
+	if err != nil {
+		log.Fatalf("Update %s:%s status error %v", namespace, canaryName, err)
+	}
+}
