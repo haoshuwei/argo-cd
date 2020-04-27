@@ -187,6 +187,15 @@ func (s *Server) Delete(ctx context.Context, q *cluster.ClusterQuery) (*cluster.
 	return &cluster.ClusterResponse{}, err
 }
 
+// DeleteACK deletes a cluster by name
+func (s *Server) DeleteACK(ctx context.Context, q *cluster.ClusterQuery) (*cluster.ClusterResponse, error) {
+	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceClusters, rbacpolicy.ActionDelete, q.Server); err != nil {
+		return nil, err
+	}
+	err := s.db.DeleteCluster(ctx, q.Server)
+	return &cluster.ClusterResponse{}, err
+}
+
 // RotateAuth rotates the bearer token used for a cluster
 func (s *Server) RotateAuth(ctx context.Context, q *cluster.ClusterQuery) (*cluster.ClusterResponse, error) {
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceClusters, rbacpolicy.ActionUpdate, q.Server); err != nil {

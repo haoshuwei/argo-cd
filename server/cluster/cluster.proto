@@ -62,6 +62,11 @@ service ClusterService {
 		option (google.api.http).delete = "/api/v1/clusters/{server}";
 	}
 
+	// Delete deletes a cluster
+	rpc DeleteACK(ClusterQuery) returns (ClusterResponse) {
+		option (google.api.http).delete = "/api/v1/clusters_v2/server";
+	}
+
 	// RotateAuth returns a cluster by server address
 	rpc RotateAuth(ClusterQuery) returns (ClusterResponse) {
 		option (google.api.http).post = "/api/v1/clusters/{server}/rotate-auth";
