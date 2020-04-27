@@ -78,6 +78,7 @@ func (c *Canary) CanaryConfirm(canaryName, namespace string) {
 		log.Fatalf("Current canary %s status is %s, can not support canary confirm", canaryName, canaryObj.Status.Phase)
 	}
 	canaryObj.Status.CanaryWeight = 101
+	canaryObj.Status.Phase = v1beta1.CanaryPhaseBegin
 	_, err = c.appClient.AppV1beta1().Canaries(namespace).UpdateStatus(canaryObj)
 	if err != nil {
 		log.Fatalf("Update %s:%s status error %v", namespace, canaryName, err)

@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"github.com/argoproj/argo-cd/cmd/rollout/commands"
+	"github.com/argoproj/argo-cd/cmd-ack/rollout/commands"
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
 
