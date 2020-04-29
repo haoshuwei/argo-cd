@@ -11,3 +11,5 @@ coverage.out
 test-results
 #vendor
 *.tgz
+node_modules/
+yarn.lock
