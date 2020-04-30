@@ -21,6 +21,10 @@ import (
 	"github.com/argoproj/argo-cd/util/db"
 	"github.com/argoproj/argo-cd/util/kube"
 	"github.com/argoproj/argo-cd/util/rbac"
+	"k8s.io/client-go/tools/clientcmd"
+	"strings"
+	"io/ioutil"
+	"k8s.io/client-go/rest"
 )
 
 // Server provides a Cluster service
@@ -147,6 +151,78 @@ func (s *Server) Create(ctx context.Context, q *cluster.ClusterCreateRequest) (*
 		}
 	}
 	return redact(clust), err
+}
+
+
+func (s *Server) CreateACK(ctx context.Context, q *cluster.AckClusterCreateRequest) (*appv1.Cluster, error) {
+	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceClusters, rbacpolicy.ActionCreate, q.Cluster); err != nil {
+		return nil, err
+	}
+	// ClusterID format is cluster_id:cluster_name:cluster_type
+	clusterInfo := q.Cluster.ClusterID
+	// get cluster_name as context name
+	clusterName := strings.Split(clusterInfo, ":")[1]
+	contextName := clusterName
+	// get kubeconfig content
+	kubeconfig := q.Cluster.Kubeconfig
+
+	kubeconfig_byte := []byte(kubeconfig)
+	clientConfig, err := clientcmd.NewClientConfigFromBytes(kubeconfig_byte)
+	if err != nil {
+		return nil, err
+	}
+
+	conf, err := clientConfig.ClientConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	managerBearerToken := ""
+
+	// Install RBAC resources for managing the cluster
+	clientset, err := kubernetes.NewForConfig(conf)
+	if err != nil {
+		return nil, err
+	}
+
+	systemNamespace := "kube-system"
+	namespaces := []string{}
+	managerBearerToken, err = clusterauth.InstallClusterManagerRBAC(clientset, systemNamespace, namespaces)
+	if err != nil {
+		return nil, err
+	}
+
+	clst := newCluster(contextName, namespaces, conf, managerBearerToken, nil)
+
+	clstCreateReq := &cluster.ClusterCreateRequest{
+		Cluster: clst,
+		Upsert:  true,
+	}
+
+	return s.Create(ctx, clstCreateReq)
+}
+
+func newCluster(name string, namespaces []string, conf *rest.Config, managerBearerToken string, awsAuthConf *appv1.AWSAuthConfig) *appv1.Cluster {
+	tlsClientConfig := appv1.TLSClientConfig{
+		Insecure:   conf.TLSClientConfig.Insecure,
+		ServerName: conf.TLSClientConfig.ServerName,
+		CAData:     conf.TLSClientConfig.CAData,
+	}
+	if len(conf.TLSClientConfig.CAData) == 0 && conf.TLSClientConfig.CAFile != "" {
+		data, _ := ioutil.ReadFile(conf.TLSClientConfig.CAFile)
+		tlsClientConfig.CAData = data
+	}
+	clst := appv1.Cluster{
+		Server:     conf.Host,
+		Name:       name,
+		Namespaces: namespaces,
+		Config: appv1.ClusterConfig{
+			BearerToken:     managerBearerToken,
+			TLSClientConfig: tlsClientConfig,
+			AWSAuthConfig:   awsAuthConf,
+		},
+	}
+	return &clst
 }
 
 // Get returns a cluster from a query

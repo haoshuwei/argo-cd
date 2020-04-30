@@ -1038,6 +1038,14 @@ type Cluster struct {
 	Namespaces []string `json:"namespaces,omitempty" protobuf:"bytes,6,opt,name=namespaces"`
 }
 
+// AckCluster is the definition of a cluster resource
+type AckCluster struct {
+	// ClusterID is the API server URL of the Kubernetes cluster
+	ClusterID string `json:"clusterID" protobuf:"bytes,1,opt,name=clusterID"`
+	// Kubeconfig of the cluster. If omitted, will use the server address
+	Kubeconfig string `json:"kubeconfig" protobuf:"bytes,2,opt,name=kubeconfig"`
+}
+
 // ClusterList is a collection of Clusters.
 type ClusterList struct {
 	metav1.ListMeta `json:"metadata,omitempty" protobuf:"bytes,1,opt,name=metadata"`

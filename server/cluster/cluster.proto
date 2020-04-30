@@ -24,6 +24,11 @@ message ClusterCreateRequest {
 	bool upsert = 2;
 }
 
+message AckClusterCreateRequest {
+	github.com.argoproj.argo_cd.pkg.apis.application.v1alpha1.AckCluster cluster = 1;
+	bool upsert = 2;
+}
+
 message ClusterUpdateRequest {
 	github.com.argoproj.argo_cd.pkg.apis.application.v1alpha1.Cluster cluster = 1;
 }
@@ -40,6 +45,14 @@ service ClusterService {
 	rpc Create(ClusterCreateRequest) returns (github.com.argoproj.argo_cd.pkg.apis.application.v1alpha1.Cluster) {
 		option (google.api.http) = {
 			post: "/api/v1/clusters"
+			body: "cluster"
+		};
+	}
+
+	// Create creates a cluster
+	rpc CreateACK(AckClusterCreateRequest) returns (github.com.argoproj.argo_cd.pkg.apis.application.v1alpha1.Cluster) {
+		option (google.api.http) = {
+			post: "/api/v1/clusters_v2"
 			body: "cluster"
 		};
 	}
