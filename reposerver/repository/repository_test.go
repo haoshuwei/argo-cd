@@ -54,11 +54,12 @@ func newServiceWithMocks(root string) (*Service, *gitmocks.Client) {
 	}}, nil)
 	helmClient.On("ExtractChart", chart, version).Return("./testdata/my-chart", util.NopCloser, nil)
 	helmClient.On("CleanChartCache", chart, version).Return(nil)
+	helmClient.On("TestHelmOCI").Return(false, nil)
 
 	service.newGitClient = func(rawRepoURL string, creds git.Creds, insecure bool, enableLfs bool) (client git.Client, e error) {
 		return gitClient, nil
 	}
-	service.newHelmClient = func(repoURL string, creds helm.Creds) helm.Client {
+	service.newHelmClient = func(repoType string, repoURL string, creds helm.Creds) helm.Client {
 		return helmClient
 	}
 	return service, gitClient
@@ -621,4 +622,13 @@ func TestService_newHelmClientResolveRevision(t *testing.T) {
 		_, _, err := service.newHelmClientResolveRevision(&argoappv1.Repository{}, "???", "")
 		assert.EqualError(t, err, "invalid revision '???': improper constraint: ???")
 	})
+}
+
+func TestParseTemplate(t *testing.T) {
+	objs, err := parseTemplate("./testdata/template/app.yaml")
+	assert.NoError(t, err)
+	assert.Len(t, objs, 3)
+	assert.Equal(t, objs[0].GetObjectKind().GroupVersionKind().Kind, "Deployment")
+	assert.Equal(t, objs[1].GetObjectKind().GroupVersionKind().Kind, "Service")
+	assert.Equal(t, objs[2].GetObjectKind().GroupVersionKind().Kind, "Ingress")
 }

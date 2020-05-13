@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/argoproj/argo-cd/util/template"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -122,6 +123,7 @@ func (s *Service) runRepoOperation(
 
 	var gitClient git.Client
 	var helmClient helm.Client
+	var templateClient template.Client
 	var err error
 	revision = util.FirstNonEmpty(revision, source.TargetRevision)
 	if source.IsHelm() {
@@ -129,6 +131,8 @@ func (s *Service) runRepoOperation(
 		if err != nil {
 			return err
 		}
+	} else if source.IsTemplate() {
+		templateClient = template.NewClient(source.Template.Id)
 	} else {
 		gitClient, revision, err = s.newClientResolveRevision(repo, revision)
 		if err != nil {
@@ -168,6 +172,14 @@ func (s *Service) runRepoOperation(
 		}
 		defer util.Close(closer)
 		return operation(chartPath, chartPath, revision)
+	} else if source.IsTemplate() {
+		templatePath, closer, err := templateClient.FetchTemplate(revision)
+		if err != nil {
+			log.Errorf("failed to fetch template: %s", err.Error())
+			return err
+		}
+		defer util.Close(closer)
+		return operation(templatePath, templatePath, revision)
 	} else {
 		s.repoLock.Lock(gitClient.Root())
 		defer s.repoLock.Unlock(gitClient.Root())
@@ -366,6 +378,8 @@ func GenerateManifests(appPath, repoRoot, revision string, q *apiclient.Manifest
 			directory = &v1alpha1.ApplicationSourceDirectory{}
 		}
 		targetObjs, err = findManifests(appPath, env, *directory)
+	case v1alpha1.ApplicationSourceTypeTemplate:
+		targetObjs, err = parseTemplate(appPath)
 	}
 	if err != nil {
 		return nil, err
@@ -571,6 +585,15 @@ func findManifests(appPath string, env *v1alpha1.Env, directory v1alpha1.Applica
 		return nil, err
 	}
 	return objs, nil
+}
+
+func parseTemplate(appPath string) ([]*unstructured.Unstructured, error) {
+	log.Infof("Read templates yaml from: %s", appPath)
+	f, err := ioutil.ReadFile(appPath)
+	if err != nil {
+		return nil, err
+	}
+	return kube.SplitYAML(string(f))
 }
 
 func makeJsonnetVm(sourceJsonnet v1alpha1.ApplicationSourceJsonnet, env *v1alpha1.Env) *jsonnet.VM {

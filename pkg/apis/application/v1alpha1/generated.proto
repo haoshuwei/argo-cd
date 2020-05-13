@@ -158,6 +158,9 @@ message ApplicationSource {
 
   // Chart is a Helm chart name
   optional string chart = 12;
+
+  // Template holds template specific options
+  optional ApplicationSourceTemplate template = 13;
 }
 
 message ApplicationSourceDirectory {
@@ -222,6 +225,11 @@ message ApplicationSourcePlugin {
   optional string name = 1;
 
   repeated EnvEntry env = 2;
+}
+
+// ApplicationSourceTemplate holds template specific options
+message ApplicationSourceTemplate {
+  optional string id = 1;
 }
 
 // ApplicationSpec represents desired application state. Contains link to repository with application definition and additional parameters link definition revision.

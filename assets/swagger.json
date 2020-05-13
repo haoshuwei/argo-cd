@@ -3459,6 +3459,9 @@
         "targetRevision": {
           "type": "string",
           "title": "TargetRevision defines the commit, tag, or branch in which to sync the application to.\nIf omitted, will sync to HEAD"
+        },
+        "template": {
+          "$ref": "#/definitions/v1alpha1ApplicationSourceTemplate"
         }
       }
     },
@@ -3585,6 +3588,15 @@
           }
         },
         "name": {
+          "type": "string"
+        }
+      }
+    },
+    "v1alpha1ApplicationSourceTemplate": {
+      "type": "object",
+      "title": "ApplicationSourceTemplate holds template specific options",
+      "properties": {
+        "id": {
           "type": "string"
         }
       }
