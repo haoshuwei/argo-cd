@@ -29,7 +29,7 @@ var (
 		showCommand:             "show",
 		pullCommand:             "pull",
 		initSupported:           false,
-		ociSupported:            true,
+		ociSupported:            false,
 		getPostTemplateCallback: cleanupChartLockFile,
 	}
 	// HelmOCI represents helm OCI specific settings

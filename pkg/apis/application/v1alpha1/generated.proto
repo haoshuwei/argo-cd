@@ -22,6 +22,15 @@ message AWSAuthConfig {
   optional string roleARN = 2;
 }
 
+// AckCluster is the definition of a cluster resource
+message AckCluster {
+  // ClusterID is the API server URL of the Kubernetes cluster
+  optional string clusterID = 1;
+
+  // Kubeconfig of the cluster. If omitted, will use the server address
+  optional string kubeconfig = 2;
+}
+
 // AppProject provides a logical grouping of applications, providing controls for:
 // * where the apps may deploy to (cluster whitelist)
 // * what may be deployed (repository whitelist, resource whitelist/blacklist)

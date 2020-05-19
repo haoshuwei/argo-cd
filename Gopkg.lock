@@ -447,14 +447,6 @@
   revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
 
 [[projects]]
-  branch = "master"
-  digest = "1:4f6eeb36bf5878cc13757c318e4a57a35dbfd85a55257e891b31991b8c46a381"
-  name = "github.com/golang/groupcache"
-  packages = ["lru"]
-  pruneopts = ""
-  revision = "8c9f03a8e57eb486e42badaed3fb287da51807ba"
-
-[[projects]]
   digest = "1:3dd078fda7500c341bc26cfbc6c6a34614f295a2457149fc1045cab767cbcf18"
   name = "github.com/golang/protobuf"
   packages = [
@@ -490,7 +482,6 @@
   name = "github.com/google/go-cmp"
   packages = [
     "cmp",
-    "cmp/cmpopts",
     "cmp/internal/diff",
     "cmp/internal/flags",
     "cmp/internal/function",
@@ -1036,57 +1027,15 @@
   digest = "1:51ad277767a050af70730c5da4a84dbd863559e8a7ae13db5fa1e73ab6aac527"
   name = "gitlab.alibaba-inc.com/cos/application-center-manager"
   packages = [
-    ".",
     "pkg/apis/alibabacloud",
     "pkg/apis/alibabacloud/v1beta1",
-    "pkg/canary",
     "pkg/client/clientset/versioned",
     "pkg/client/clientset/versioned/scheme",
     "pkg/client/clientset/versioned/typed/alibabacloud/v1beta1",
-    "pkg/client/informers/externalversions",
-    "pkg/client/informers/externalversions/alibabacloud",
-    "pkg/client/informers/externalversions/alibabacloud/v1beta1",
-    "pkg/client/informers/externalversions/internalinterfaces",
-    "pkg/client/listers/alibabacloud/v1beta1",
-    "pkg/controller",
-    "pkg/logger",
-    "router",
-    "server",
-    "signals",
   ]
   pruneopts = ""
   revision = "d16c2d98a75814bc54ddac94644b83403a3d6498"
-
-[[projects]]
-  digest = "1:6cd0c56c18047e5c0cdcd8b4b4a578e56ce0c087daf415f65a3528d093194102"
-  name = "go.uber.org/atomic"
-  packages = ["."]
-  pruneopts = ""
-  revision = "845920076a298bdb984fb0f1b86052e4ca0a281c"
-  version = "v1.6.0"
-
-[[projects]]
-  digest = "1:3231357c44a4e2c3ebfd964c891080541904e1ecda5fea5c2c6b38313922673b"
-  name = "go.uber.org/multierr"
-  packages = ["."]
-  pruneopts = ""
-  revision = "b587143a48b62b01d337824eab43700af6ffe222"
-  version = "v1.5.0"
-
-[[projects]]
-  digest = "1:d57c3c1c6dc133e9fd2f1f750d4e5900706dcc4f3c4ec5b981145629cccb9960"
-  name = "go.uber.org/zap"
-  packages = [
-    ".",
-    "buffer",
-    "internal/bufferpool",
-    "internal/color",
-    "internal/exit",
-    "zapcore",
-  ]
-  pruneopts = ""
-  revision = "2aa9fa25da83bdfff756c36a91442edc9a84576c"
-  version = "v1.14.1"
+  source = "git@gitlab.alibaba-inc.com:cos/application-center-manager.git"
 
 [[projects]]
   branch = "master"
@@ -1553,7 +1502,6 @@
     "pkg/util/mergepatch",
     "pkg/util/naming",
     "pkg/util/net",
-    "pkg/util/rand",
     "pkg/util/remotecommand",
     "pkg/util/runtime",
     "pkg/util/sets",
@@ -1728,8 +1676,6 @@
     "tools/metrics",
     "tools/pager",
     "tools/portforward",
-    "tools/record",
-    "tools/record/util",
     "tools/reference",
     "tools/remotecommand",
     "tools/watch",
@@ -1945,7 +1891,6 @@
   name = "k8s.io/utils"
   packages = [
     "buffer",
-    "clock",
     "exec",
     "integer",
     "net",
@@ -2071,7 +2016,7 @@
     "github.com/yudai/gojsondiff",
     "github.com/yudai/gojsondiff/formatter",
     "github.com/yuin/gopher-lua",
-    "gitlab.alibaba-inc.com/cos/application-center-manager",
+    "gitlab.alibaba-inc.com/cos/application-center-manager/pkg/apis/alibabacloud/v1beta1",
     "gitlab.alibaba-inc.com/cos/application-center-manager/pkg/client/clientset/versioned",
     "golang.org/x/crypto/bcrypt",
     "golang.org/x/crypto/ssh",

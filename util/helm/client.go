@@ -108,12 +108,13 @@ func (c *nativeHelmChart) ExtractChart(chart string, version *semver.Version) (s
 	if err != nil {
 		return "", nil, err
 	}
+	log.Infof("====%v", c)
 	if !exists {
 		// always use Helm V3 since we don't have chart content to determine correct Helm version
 		helmCmd := &Cmd{}
 		var err error
 		switch c.repoType  {
-		case HelmOCIType :
+		case HelmOCIType:
 			helmCmd, err = NewCmdWithVersion(c.repoPath, HelmOCI)
 		default:
 			helmCmd, err = NewCmdWithVersion(c.repoPath, HelmV3)

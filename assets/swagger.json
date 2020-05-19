@@ -187,7 +187,7 @@
           "ApplicationService"
         ],
         "summary": "List returns list of applications",
-        "operationId": "List",
+        "operationId": "ListMixin8",
         "parameters": [
           {
             "type": "string",
@@ -237,7 +237,7 @@
           "ApplicationService"
         ],
         "summary": "Create creates an application",
-        "operationId": "Create",
+        "operationId": "CreateMixin8",
         "parameters": [
           {
             "name": "body",
@@ -264,7 +264,7 @@
           "ApplicationService"
         ],
         "summary": "Update updates an application",
-        "operationId": "Update",
+        "operationId": "UpdateMixin8",
         "parameters": [
           {
             "type": "string",
@@ -395,7 +395,7 @@
           "ApplicationService"
         ],
         "summary": "Get returns an application by name",
-        "operationId": "Get",
+        "operationId": "GetMixin8",
         "parameters": [
           {
             "type": "string",
@@ -445,7 +445,7 @@
           "ApplicationService"
         ],
         "summary": "Delete deletes an application",
-        "operationId": "Delete",
+        "operationId": "DeleteMixin8",
         "parameters": [
           {
             "type": "string",
@@ -1084,7 +1084,7 @@
           "ClusterService"
         ],
         "summary": "List returns list of clusters",
-        "operationId": "ListMixin4",
+        "operationId": "List",
         "parameters": [
           {
             "type": "string",
@@ -1106,7 +1106,7 @@
           "ClusterService"
         ],
         "summary": "Create creates a cluster",
-        "operationId": "CreateMixin4",
+        "operationId": "Create",
         "parameters": [
           {
             "name": "body",
@@ -1133,7 +1133,7 @@
           "ClusterService"
         ],
         "summary": "Update updates a cluster",
-        "operationId": "UpdateMixin4",
+        "operationId": "Update",
         "parameters": [
           {
             "type": "string",
@@ -1166,7 +1166,7 @@
           "ClusterService"
         ],
         "summary": "Get returns a cluster by server address",
-        "operationId": "GetMixin4",
+        "operationId": "GetMixin2",
         "parameters": [
           {
             "type": "string",
@@ -1189,7 +1189,7 @@
           "ClusterService"
         ],
         "summary": "Delete deletes a cluster",
-        "operationId": "DeleteMixin4",
+        "operationId": "Delete",
         "parameters": [
           {
             "type": "string",
@@ -1233,13 +1233,57 @@
         }
       }
     },
+    "/api/v1/clusters_v2": {
+      "post": {
+        "tags": [
+          "ClusterService"
+        ],
+        "summary": "Create creates a cluster",
+        "operationId": "CreateACK",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1alpha1AckCluster"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/v1alpha1Cluster"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/clusters_v2/server": {
+      "delete": {
+        "tags": [
+          "ClusterService"
+        ],
+        "summary": "Delete deletes a cluster",
+        "operationId": "DeleteACK",
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/clusterClusterResponse"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/projects": {
       "get": {
         "tags": [
           "ProjectService"
         ],
         "summary": "List returns list of projects",
-        "operationId": "ListMixin5",
+        "operationId": "ListMixin6",
         "parameters": [
           {
             "type": "string",
@@ -1261,7 +1305,7 @@
           "ProjectService"
         ],
         "summary": "Create a new project.",
-        "operationId": "CreateMixin5",
+        "operationId": "CreateMixin6",
         "parameters": [
           {
             "name": "body",
@@ -1288,7 +1332,7 @@
           "ProjectService"
         ],
         "summary": "Get returns a project by name",
-        "operationId": "GetMixin5",
+        "operationId": "GetMixin6",
         "parameters": [
           {
             "type": "string",
@@ -1311,7 +1355,7 @@
           "ProjectService"
         ],
         "summary": "Delete deletes a project",
-        "operationId": "DeleteMixin5",
+        "operationId": "DeleteMixin6",
         "parameters": [
           {
             "type": "string",
@@ -1386,7 +1430,7 @@
           "ProjectService"
         ],
         "summary": "Update updates a project",
-        "operationId": "UpdateMixin5",
+        "operationId": "UpdateMixin6",
         "parameters": [
           {
             "type": "string",
@@ -1840,6 +1884,110 @@
         }
       }
     },
+    "/api/v1/repositories_v2/repo": {
+      "delete": {
+        "tags": [
+          "RepositoryService"
+        ],
+        "summary": "DeleteRepositoryACK deletes a repository from the configuration",
+        "operationId": "DeleteRepositoryACK",
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/repositoryRepoResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repositories_v2/repo/appdetails": {
+      "post": {
+        "tags": [
+          "RepositoryService"
+        ],
+        "summary": "GetAppDetailsACK returns application details by given path",
+        "operationId": "GetAppDetailsACK",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/repositoryRepoAppDetailsQuery"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/repositoryRepoAppDetailsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repositories_v2/repo/apps": {
+      "get": {
+        "tags": [
+          "RepositoryService"
+        ],
+        "summary": "ListAppsACK returns list of apps in the repo",
+        "operationId": "ListAppsACK",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "repo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "revision",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/repositoryRepoAppsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/repositories_v2/repo/helmcharts": {
+      "get": {
+        "tags": [
+          "RepositoryService"
+        ],
+        "operationId": "GetHelmChartsACK",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Repo URL for query.",
+            "name": "repo",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "format": "boolean",
+            "description": "Whether to force a cache refresh on repo's connection state.",
+            "name": "forceRefresh",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/repositoryHelmChartsResponse"
+            }
+          }
+        }
+      }
+    },
     "/api/v1/session": {
       "post": {
         "tags": [
@@ -1905,7 +2053,7 @@
           "SettingsService"
         ],
         "summary": "Get returns Argo CD settings",
-        "operationId": "GetMixin7",
+        "operationId": "Get",
         "responses": {
           "200": {
             "description": "(empty)",
@@ -3107,6 +3255,20 @@
         "roleARN": {
           "description": "RoleARN contains optional role ARN. If set then AWS IAM Authenticator assume a role to perform cluster operations instead of the default AWS credential provider chain.",
           "type": "string"
+        }
+      }
+    },
+    "v1alpha1AckCluster": {
+      "type": "object",
+      "title": "AckCluster is the definition of a cluster resource",
+      "properties": {
+        "clusterID": {
+          "type": "string",
+          "title": "ClusterID is the API server URL of the Kubernetes cluster"
+        },
+        "kubeconfig": {
+          "type": "string",
+          "title": "Kubeconfig of the cluster. If omitted, will use the server address"
         }
       }
     },

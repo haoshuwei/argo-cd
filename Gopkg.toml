@@ -127,4 +127,5 @@ required = [
 
 [[constraint]]
   name = "gitlab.alibaba-inc.com/cos/application-center-manager"
+  source = "git@gitlab.alibaba-inc.com:cos/application-center-manager.git"
   branch = "master"

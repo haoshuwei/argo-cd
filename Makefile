@@ -54,10 +54,8 @@ define run-in-test-server
 		-v ${GOCACHE}:/tmp/go-build-cache${VOLUME_MOUNT} \
 		-v ${HOME}/.kube:/home/user/.kube${VOLUME_MOUNT} \
 		-v /tmp:/tmp${VOLUME_MOUNT} \
-		-v /app/config:/app/config${VOLUME_MOUNT} \
 		-w ${DOCKER_WORKDIR} \
 		-p ${ARGOCD_E2E_APISERVER_PORT}:8080 \
-		-p 4000:4000 \
 		$(TEST_TOOLS_PREFIX)$(TEST_TOOLS_IMAGE):$(TEST_TOOLS_TAG) \
 		bash -c "$(1)"
 endef
