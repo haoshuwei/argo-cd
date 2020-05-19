@@ -152,6 +152,9 @@ func (a *ApplicationSource) IsTemplate() bool {
 }
 
 func (a *ApplicationSource) GetRepoType() string {
+	if a.IsTemplate() {
+		return "template"
+	}
 	if a.Chart == "" {
 		return "git"
 	}

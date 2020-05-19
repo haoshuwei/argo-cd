@@ -124,6 +124,10 @@ func WaitForRefresh(ctx context.Context, appIf v1alpha1.ApplicationInterface, na
 }
 
 func TestRepoWithKnownType(repo *argoappv1.Repository, repoType string) error {
+	if repoType == "template" {
+		return nil
+	}
+
 	repo = repo.DeepCopy()
 	//if isHelm {
 	//	repo.Type = "helm"
