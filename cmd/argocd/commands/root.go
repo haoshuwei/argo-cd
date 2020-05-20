@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"github.com/argoproj/argo-cd/cmd-ack/rollout/commands"
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
 
@@ -50,9 +49,6 @@ func NewCommand() *cobra.Command {
 	command.AddCommand(NewAccountCommand(&clientOpts))
 	command.AddCommand(NewLogoutCommand(&clientOpts))
 	command.AddCommand(NewCertCommand(&clientOpts))
-
-	//This is for Rollout command
-	command.AddCommand(commands.NewRolloutCommand())
 
 	defaultLocalConfigPath, err := localconfig.DefaultLocalConfigPath()
 	errors.CheckError(err)

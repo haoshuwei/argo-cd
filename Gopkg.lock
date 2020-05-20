@@ -1024,21 +1024,6 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:51ad277767a050af70730c5da4a84dbd863559e8a7ae13db5fa1e73ab6aac527"
-  name = "gitlab.alibaba-inc.com/cos/application-center-manager"
-  packages = [
-    "pkg/apis/alibabacloud",
-    "pkg/apis/alibabacloud/v1beta1",
-    "pkg/client/clientset/versioned",
-    "pkg/client/clientset/versioned/scheme",
-    "pkg/client/clientset/versioned/typed/alibabacloud/v1beta1",
-  ]
-  pruneopts = ""
-  revision = "d16c2d98a75814bc54ddac94644b83403a3d6498"
-  source = "git@gitlab.alibaba-inc.com:cos/application-center-manager.git"
-
-[[projects]]
-  branch = "master"
   digest = "1:2ea6df0f542cc95a5e374e9cdd81eaa599ed0d55366eef92d2f6b9efa2795c07"
   name = "golang.org/x/crypto"
   packages = [
@@ -2016,8 +2001,6 @@
     "github.com/yudai/gojsondiff",
     "github.com/yudai/gojsondiff/formatter",
     "github.com/yuin/gopher-lua",
-    "gitlab.alibaba-inc.com/cos/application-center-manager/pkg/apis/alibabacloud/v1beta1",
-    "gitlab.alibaba-inc.com/cos/application-center-manager/pkg/client/clientset/versioned",
     "golang.org/x/crypto/bcrypt",
     "golang.org/x/crypto/ssh",
     "golang.org/x/crypto/ssh/knownhosts",

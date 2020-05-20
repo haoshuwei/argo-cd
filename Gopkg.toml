@@ -124,8 +124,3 @@ required = [
 [[constraint]]
   name = "github.com/alicebob/miniredis"
   version = "2.7.0"
-
-[[constraint]]
-  name = "gitlab.alibaba-inc.com/cos/application-center-manager"
-  source = "git@gitlab.alibaba-inc.com:cos/application-center-manager.git"
-  branch = "master"
