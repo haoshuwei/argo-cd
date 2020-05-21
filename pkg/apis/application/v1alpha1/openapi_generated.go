@@ -14,6 +14,7 @@ import (
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
 		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.AWSAuthConfig":                    schema_pkg_apis_application_v1alpha1_AWSAuthConfig(ref),
+		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.AckCluster":                       schema_pkg_apis_application_v1alpha1_AckCluster(ref),
 		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.AppProject":                       schema_pkg_apis_application_v1alpha1_AppProject(ref),
 		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.AppProjectList":                   schema_pkg_apis_application_v1alpha1_AppProjectList(ref),
 		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.AppProjectSpec":                   schema_pkg_apis_application_v1alpha1_AppProjectSpec(ref),
@@ -28,6 +29,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceKsonnet":         schema_pkg_apis_application_v1alpha1_ApplicationSourceKsonnet(ref),
 		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceKustomize":       schema_pkg_apis_application_v1alpha1_ApplicationSourceKustomize(ref),
 		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourcePlugin":          schema_pkg_apis_application_v1alpha1_ApplicationSourcePlugin(ref),
+		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceTemplate":        schema_pkg_apis_application_v1alpha1_ApplicationSourceTemplate(ref),
 		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSpec":                  schema_pkg_apis_application_v1alpha1_ApplicationSpec(ref),
 		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationStatus":                schema_pkg_apis_application_v1alpha1_ApplicationStatus(ref),
 		"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSummary":               schema_pkg_apis_application_v1alpha1_ApplicationSummary(ref),
@@ -113,6 +115,34 @@ func schema_pkg_apis_application_v1alpha1_AWSAuthConfig(ref common.ReferenceCall
 						},
 					},
 				},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_application_v1alpha1_AckCluster(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "AckCluster is the definition of a cluster resource",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"clusterID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ClusterID is the API server URL of the Kubernetes cluster",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"kubeconfig": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kubeconfig of the cluster. If omitted, will use the server address",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+				Required: []string{"clusterID", "kubeconfig"},
 			},
 		},
 	}
@@ -550,12 +580,18 @@ func schema_pkg_apis_application_v1alpha1_ApplicationSource(ref common.Reference
 							Format:      "",
 						},
 					},
+					"template": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Template holds template specific options",
+							Ref:         ref("github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceTemplate"),
+						},
+					},
 				},
 				Required: []string{"repoURL"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceDirectory", "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceHelm", "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceKsonnet", "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceKustomize", "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourcePlugin"},
+			"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceDirectory", "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceHelm", "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceKsonnet", "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceKustomize", "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourcePlugin", "github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.ApplicationSourceTemplate"},
 	}
 }
 
@@ -815,6 +851,25 @@ func schema_pkg_apis_application_v1alpha1_ApplicationSourcePlugin(ref common.Ref
 		},
 		Dependencies: []string{
 			"github.com/argoproj/argo-cd/pkg/apis/application/v1alpha1.EnvEntry"},
+	}
+}
+
+func schema_pkg_apis_application_v1alpha1_ApplicationSourceTemplate(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "ApplicationSourceTemplate holds template specific options",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"id": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+			},
+		},
 	}
 }
 

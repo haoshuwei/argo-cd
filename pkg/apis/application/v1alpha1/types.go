@@ -139,13 +139,22 @@ type ApplicationSource struct {
 	Plugin *ApplicationSourcePlugin `json:"plugin,omitempty" protobuf:"bytes,11,opt,name=plugin"`
 	// Chart is a Helm chart name
 	Chart string `json:"chart,omitempty" protobuf:"bytes,12,opt,name=chart"`
+	// Template holds template specific options
+	Template *ApplicationSourceTemplate `json:"template,omitempty" protobuf:"bytes,13,opt,name=template"`
 }
 
 func (a *ApplicationSource) IsHelm() bool {
 	return a.Chart != ""
 }
 
+func (a *ApplicationSource) IsTemplate() bool {
+	return a.Template != nil
+}
+
 func (a *ApplicationSource) GetRepoType() string {
+	if a.IsTemplate() {
+		return "template"
+	}
 	if a.Chart == "" {
 		return "git"
 	}
@@ -175,6 +184,7 @@ const (
 	ApplicationSourceTypeKsonnet   ApplicationSourceType = "Ksonnet"
 	ApplicationSourceTypeDirectory ApplicationSourceType = "Directory"
 	ApplicationSourceTypePlugin    ApplicationSourceType = "Plugin"
+	ApplicationSourceTypeTemplate  ApplicationSourceType = "template"
 )
 
 type RefreshType string
@@ -399,6 +409,15 @@ type ApplicationSourcePlugin struct {
 
 func (c *ApplicationSourcePlugin) IsZero() bool {
 	return c == nil || c.Name == "" && c.Env.IsZero()
+}
+
+// ApplicationSourceTemplate holds template specific options
+type ApplicationSourceTemplate struct {
+	Id string `json:"id,omitempty" protobuf:"bytes,1,opt,id=id"`
+}
+
+func (c *ApplicationSourceTemplate) IsZero() bool {
+	return c == nil || c.Id == ""
 }
 
 // ApplicationDestination contains deployment destination information
@@ -2095,6 +2114,9 @@ func (source *ApplicationSource) ExplicitType() (*ApplicationSourceType, error) 
 	}
 	if source.Plugin != nil {
 		appTypes = append(appTypes, ApplicationSourceTypePlugin)
+	}
+	if source.Template != nil {
+		appTypes = append(appTypes, ApplicationSourceTypeTemplate)
 	}
 	if len(appTypes) == 0 {
 		return nil, nil

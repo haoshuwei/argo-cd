@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/argoproj/argo-cd/util/template"
 	"reflect"
 	"sort"
 	"strconv"
@@ -1175,6 +1176,16 @@ func (s *Server) resolveRevision(ctx context.Context, app *appv1.Application, sy
 			return "", "", err
 		}
 		return version.String(), fmt.Sprintf("%v (%v)", ambiguousRevision, version.String()), nil
+	} else if app.Spec.Source.IsTemplate() {
+		if template.IsRevisionHash(ambiguousRevision) {
+			return ambiguousRevision, ambiguousRevision, nil
+		}
+		client := template.NewClient(app.Spec.Source.Template.Id)
+		revision, err := client.ResolveHeadRevision()
+		if err != nil {
+			return "", "", err
+		}
+		return revision, revision, nil
 	} else {
 		if git.IsCommitSHA(ambiguousRevision) {
 			// If it's already a commit SHA, then no need to look it up

@@ -124,6 +124,10 @@ func WaitForRefresh(ctx context.Context, appIf v1alpha1.ApplicationInterface, na
 }
 
 func TestRepoWithKnownType(repo *argoappv1.Repository, repoType string) error {
+	if repoType == "template" {
+		return nil
+	}
+
 	repo = repo.DeepCopy()
 	//if isHelm {
 	//	repo.Type = "helm"
@@ -268,7 +272,7 @@ func enrichSpec(spec *argoappv1.ApplicationSpec, appDetails *apiclient.RepoAppDe
 // ValidatePermissions ensures that the referenced cluster has been added to Argo CD and the app source repo and destination namespace/cluster are permitted in app project
 func ValidatePermissions(ctx context.Context, spec *argoappv1.ApplicationSpec, proj *argoappv1.AppProject, db db.ArgoDB) ([]argoappv1.ApplicationCondition, error) {
 	conditions := make([]argoappv1.ApplicationCondition, 0)
-	if spec.Source.RepoURL == "" || (spec.Source.Path == "" && spec.Source.Chart == "") {
+	if spec.Source.RepoURL == "" || (spec.Source.Path == "" && spec.Source.Chart == "" && spec.Source.Template == nil) {
 		conditions = append(conditions, argoappv1.ApplicationCondition{
 			Type:    argoappv1.ApplicationConditionInvalidSpecError,
 			Message: "spec.source.repoURL and spec.source.path either spec.source.chart are required",

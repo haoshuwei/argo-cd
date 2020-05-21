@@ -265,6 +265,12 @@ spec:
                         in which to sync the application to. If omitted, will sync
                         to HEAD
                       type: string
+                    template:
+                      description: Template holds template specific options
+                      properties:
+                        id:
+                          type: string
+                      type: object
                   required:
                   - repoURL
                   type: object
@@ -547,6 +553,12 @@ spec:
                   description: TargetRevision defines the commit, tag, or branch in
                     which to sync the application to. If omitted, will sync to HEAD
                   type: string
+                template:
+                  description: Template holds template specific options
+                  properties:
+                    id:
+                      type: string
+                  type: object
               required:
               - repoURL
               type: object
@@ -808,6 +820,12 @@ spec:
                           in which to sync the application to. If omitted, will sync
                           to HEAD
                         type: string
+                      template:
+                        description: Template holds template specific options
+                        properties:
+                          id:
+                            type: string
+                        type: object
                     required:
                     - repoURL
                     type: object
@@ -1082,6 +1100,12 @@ spec:
                                 or branch in which to sync the application to. If
                                 omitted, will sync to HEAD
                               type: string
+                            template:
+                              description: Template holds template specific options
+                              properties:
+                                id:
+                                  type: string
+                              type: object
                           required:
                           - repoURL
                           type: object
@@ -1367,6 +1391,12 @@ spec:
                             branch in which to sync the application to. If omitted,
                             will sync to HEAD
                           type: string
+                        template:
+                          description: Template holds template specific options
+                          properties:
+                            id:
+                              type: string
+                          type: object
                       required:
                       - repoURL
                       type: object
@@ -1640,6 +1670,12 @@ spec:
                             branch in which to sync the application to. If omitted,
                             will sync to HEAD
                           type: string
+                        template:
+                          description: Template holds template specific options
+                          properties:
+                            id:
+                              type: string
+                          type: object
                       required:
                       - repoURL
                       type: object

@@ -65,6 +65,25 @@
   revision = "09c41003ee1d5015b75f331e52215512e7145b8d"
 
 [[projects]]
+  digest = "1:0c0fd3acf4954d99dc6ed90108adf7d1a8867d79f38ebff06cde730641460a75"
+  name = "github.com/aliyun/alibaba-cloud-sdk-go"
+  packages = [
+    "sdk",
+    "sdk/auth",
+    "sdk/auth/credentials",
+    "sdk/auth/credentials/provider",
+    "sdk/auth/signers",
+    "sdk/endpoints",
+    "sdk/errors",
+    "sdk/requests",
+    "sdk/responses",
+    "sdk/utils",
+  ]
+  pruneopts = ""
+  revision = "6ebb7913413f77e4987529016a399f14348f5ebf"
+  version = "v1.61.192"
+
+[[projects]]
   branch = "master"
   digest = "1:fbe4779f247babd0b21e2283d419f848a8dab42c0f6bbdeb88d83f190f52c159"
   name = "github.com/argoproj/pkg"
@@ -648,6 +667,14 @@
   revision = "d14ea06fba99483203c19d92cfcd13ebe73135f4"
 
 [[projects]]
+  digest = "1:e6f0b9e4dced4b6b5fedb810e2125a9f74dfe2ef1598c55ecb25e8b3d8f514ea"
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  pruneopts = ""
+  revision = "3433f3ea46d9f8019119e7dd41274e112a2359a9"
+  version = "0.2.2"
+
+[[projects]]
   digest = "1:302ad9379eb146668760df4d779a95379acab43ce5f9a28f27f3273f98232020"
   name = "github.com/jonboulle/clockwork"
   packages = ["."]
@@ -656,11 +683,12 @@
   version = "v0.1.0"
 
 [[projects]]
-  digest = "1:31c6f3c4f1e15fcc24fcfc9f5f24603ff3963c56d6fa162116493b4025fb6acc"
+  digest = "1:fb8bce9822eac1e2aeee6c2621cf25c6dec8f8f5f50a09a4a894d7932bfb2106"
   name = "github.com/json-iterator/go"
   packages = ["."]
   pruneopts = ""
-  revision = "f2b4162afba35581b6d4a50d3b8f34e33c144682"
+  revision = "acfec88f7a0d5140ace3dcdbee10184e3684a9e1"
+  version = "v1.1.9"
 
 [[projects]]
   branch = "master"
@@ -1272,6 +1300,14 @@
   pruneopts = ""
   revision = "3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4"
   version = "v0.9.0"
+
+[[projects]]
+  digest = "1:f4a9eab01153d3b959ce647fa328492516cad0631ae783296ac41c5be8e31e5f"
+  name = "gopkg.in/ini.v1"
+  packages = ["."]
+  pruneopts = ""
+  revision = "ad8a10643d24d67f464955e42b23e0d42d60fcb4"
+  version = "v1.56.0"
 
 [[projects]]
   branch = "v2"
@@ -1939,6 +1975,8 @@
     "bou.ke/monkey",
     "github.com/Masterminds/semver",
     "github.com/TomOnTime/utfutil",
+    "github.com/aliyun/alibaba-cloud-sdk-go/sdk",
+    "github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests",
     "github.com/argoproj/pkg/errors",
     "github.com/argoproj/pkg/exec",
     "github.com/argoproj/pkg/grpc/http",
