@@ -9,7 +9,6 @@ import (
 	"github.com/argoproj/argo-cd/util/cli"
 	"github.com/argoproj/argo-cd/util/config"
 	"github.com/argoproj/argo-cd/util/localconfig"
-	"github.com/argoproj/argo-cd/cmd-ack/rollout/commands"
 )
 
 func init() {
@@ -50,8 +49,6 @@ func NewCommand() *cobra.Command {
 	//command.AddCommand(NewAccountCommand(&clientOpts))
 	//command.AddCommand(NewLogoutCommand(&clientOpts))
 	command.AddCommand(NewCertCommand(&clientOpts))
-	command.AddCommand(commands.NewRolloutCommand())
-
 
 	defaultLocalConfigPath, err := localconfig.DefaultLocalConfigPath()
 	errors.CheckError(err)
