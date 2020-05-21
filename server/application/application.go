@@ -139,6 +139,7 @@ func (s *Server) Create(ctx context.Context, q *application.ApplicationCreateReq
 	s.projectLock.Lock(q.Application.Spec.Project)
 	defer s.projectLock.Unlock(q.Application.Spec.Project)
 
+	q.Application.Spec.Source.RepoURL = strings.TrimSpace(q.Application.Spec.Source.RepoURL)
 	a := q.Application
 	err := s.validateAndNormalizeApp(ctx, &a)
 	if err != nil {

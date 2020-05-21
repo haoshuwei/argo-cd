@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
@@ -82,11 +83,13 @@ func (s *Server) getConnectionState(ctx context.Context, url string, forceRefres
 // List returns list of repositories
 // Deprecated: Use ListRepositories instead
 func (s *Server) List(ctx context.Context, q *repositorypkg.RepoQuery) (*appsv1.RepositoryList, error) {
+	q.Repo = strings.TrimSpace(q.Repo)
 	return s.ListRepositories(ctx, q)
 }
 
 // ListRepositories returns a list of all configured repositories and the state of their connections
 func (s *Server) ListRepositories(ctx context.Context, q *repositorypkg.RepoQuery) (*appsv1.RepositoryList, error) {
+	q.Repo = strings.TrimSpace(q.Repo)
 	repos, err := s.db.ListRepositories(ctx)
 	if err != nil {
 		return nil, err
@@ -122,6 +125,7 @@ func (s *Server) ListRepositories(ctx context.Context, q *repositorypkg.RepoQuer
 
 // ListApps returns list of apps in the repo
 func (s *Server) ListApps(ctx context.Context, q *repositorypkg.RepoAppsQuery) (*repositorypkg.RepoAppsResponse, error) {
+	q.Repo = strings.TrimSpace(q.Repo)
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionGet, q.Repo); err != nil {
 		return nil, err
 	}
@@ -153,6 +157,7 @@ func (s *Server) ListApps(ctx context.Context, q *repositorypkg.RepoAppsQuery) (
 
 // ListAppsACK returns list of apps in the repo
 func (s *Server) ListAppsACK(ctx context.Context, q *repositorypkg.RepoAppsQuery) (*repositorypkg.RepoAppsResponse, error) {
+	q.Repo = strings.TrimSpace(q.Repo)
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionGet, q.Repo); err != nil {
 		return nil, err
 	}
@@ -245,6 +250,7 @@ func (s *Server) GetAppDetailsACK(ctx context.Context, q *repositorypkg.RepoAppD
 }
 
 func (s *Server) GetHelmCharts(ctx context.Context, q *repositorypkg.RepoQuery) (*apiclient.HelmChartsResponse, error) {
+	q.Repo = strings.TrimSpace(q.Repo)
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionGet, q.Repo); err != nil {
 		return nil, err
 	}
@@ -261,6 +267,7 @@ func (s *Server) GetHelmCharts(ctx context.Context, q *repositorypkg.RepoQuery) 
 }
 
 func (s *Server) GetHelmChartsACK(ctx context.Context, q *repositorypkg.RepoQuery) (*apiclient.HelmChartsResponse, error) {
+	q.Repo = strings.TrimSpace(q.Repo)
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionGet, q.Repo); err != nil {
 		return nil, err
 	}
@@ -284,6 +291,11 @@ func (s *Server) Create(ctx context.Context, q *repositorypkg.RepoCreateRequest)
 
 // CreateRepository creates a repository configuration
 func (s *Server) CreateRepository(ctx context.Context, q *repositorypkg.RepoCreateRequest) (*appsv1.Repository, error) {
+	if q != nil {
+		q.Repo.Repo = strings.TrimSpace(q.Repo.Repo)
+	} else {
+		return nil, fmt.Errorf("Repository repo url is nil ")
+	}
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionCreate, q.Repo.Repo); err != nil {
 		return nil, err
 	}
@@ -337,11 +349,17 @@ func (s *Server) CreateRepository(ctx context.Context, q *repositorypkg.RepoCrea
 // Update updates a repository or credential set
 // Deprecated: Use UpdateRepository() instead
 func (s *Server) Update(ctx context.Context, q *repositorypkg.RepoUpdateRequest) (*appsv1.Repository, error) {
+	if q != nil {
+		q.Repo.Repo = strings.TrimSpace(q.Repo.Repo)
+	} else {
+		return nil, fmt.Errorf("Repository repo url is nil ")
+	}
 	return s.UpdateRepository(ctx, q)
 }
 
 // UpdateRepository updates a repository configuration
 func (s *Server) UpdateRepository(ctx context.Context, q *repositorypkg.RepoUpdateRequest) (*appsv1.Repository, error) {
+
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionUpdate, q.Repo.Repo); err != nil {
 		return nil, err
 	}
@@ -352,6 +370,11 @@ func (s *Server) UpdateRepository(ctx context.Context, q *repositorypkg.RepoUpda
 // Delete removes a repository from the configuration
 // Deprecated: Use DeleteRepository() instead
 func (s *Server) Delete(ctx context.Context, q *repositorypkg.RepoQuery) (*repositorypkg.RepoResponse, error) {
+	if q != nil {
+		q.Repo = strings.TrimSpace(q.Repo)
+	} else {
+		return nil, fmt.Errorf("Repository repo url is nil ")
+	}
 	return s.DeleteRepository(ctx, q)
 }
 
@@ -372,6 +395,11 @@ func (s *Server) DeleteRepository(ctx context.Context, q *repositorypkg.RepoQuer
 
 // DeleteRepositoryACK removes a repository from the configuration
 func (s *Server) DeleteRepositoryACK(ctx context.Context, q *repositorypkg.RepoQuery) (*repositorypkg.RepoResponse, error) {
+	if q != nil {
+		q.Repo = strings.TrimSpace(q.Repo)
+	} else {
+		return nil, fmt.Errorf("Repository repo url is nil ")
+	}
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionDelete, q.Repo); err != nil {
 		return nil, err
 	}
@@ -388,6 +416,11 @@ func (s *Server) DeleteRepositoryACK(ctx context.Context, q *repositorypkg.RepoQ
 // ValidateAccess checks whether access to a repository is possible with the
 // given URL and credentials.
 func (s *Server) ValidateAccess(ctx context.Context, q *repositorypkg.RepoAccessQuery) (*repositorypkg.RepoResponse, error) {
+	if q != nil {
+		q.Repo = strings.TrimSpace(q.Repo)
+	} else {
+		return nil, fmt.Errorf("Repository repo url is nil ")
+	}
 	if err := s.enf.EnforceErr(ctx.Value("claims"), rbacpolicy.ResourceRepositories, rbacpolicy.ActionCreate, q.Repo); err != nil {
 		return nil, err
 	}

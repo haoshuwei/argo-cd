@@ -2,5 +2,5 @@
 # argocd-dev
 ####################################################################################################
 FROM argocd-base
-COPY argocd* /usr/local/bin/
+COPY appcenter* /usr/local/bin/
 COPY --from=argocd-ui ./src/dist/app /shared/app
