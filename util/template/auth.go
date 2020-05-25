@@ -5,7 +5,10 @@ import (
 	"crypto/cipher"
 	"encoding/base64"
 	"encoding/json"
-	"io/ioutil"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
 	"strings"
@@ -15,8 +18,8 @@ import (
 )
 
 const (
-	// ConfigPath the secret mount file
-	ConfigPath = "/var/addon/token-config"
+	SecretName      = "addon.log.token"
+	SecretConfigKey = "addon.token.config"
 )
 
 type AKInfo struct {
@@ -90,47 +93,74 @@ func GetSTSAK() (string, string, string) {
 func GetManagedToken() (string, string, string) {
 	var akInfo AKInfo
 	AccessKeyID, AccessKeySecret, SecurityToken := "", "", ""
-	if _, err := os.Stat(ConfigPath); err == nil {
-		encodeTokenCfg, err := ioutil.ReadFile(ConfigPath)
-		if err != nil {
-			log.Errorf("failed to read token config, err: %v", err)
-			return "", "", ""
-		}
-		err = json.Unmarshal(encodeTokenCfg, &akInfo)
-		if err != nil {
-			log.Errorf("error unmarshal token config: %v", err)
-			return "", "", ""
-		}
-		keyring := akInfo.Keyring
-		ak, err := Decrypt(akInfo.AccessKeyID, []byte(keyring))
-		if err != nil {
-			log.Errorf("failed to decode ak, err: %v", err)
-			return "", "", ""
-		}
 
-		sk, err := Decrypt(akInfo.AccessKeySecret, []byte(keyring))
-		if err != nil {
-			log.Errorf("failed to decode sk, err: %v", err)
-			return "", "", ""
-		}
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		log.Warnf("failed to load in cluster config, err: %v", err)
+		loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+		loadingRules.DefaultClientConfig = &clientcmd.DefaultClientConfig
+		overrides := clientcmd.ConfigOverrides{}
+		clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, &overrides)
+		config, err = clientConfig.ClientConfig()
 
-		token, err := Decrypt(akInfo.SecurityToken, []byte(keyring))
 		if err != nil {
-			log.Errorf("failed to decode token, err: %v", err)
+			log.Errorf("failed to load client config, err: %v", err)
 			return "", "", ""
 		}
-		layout := "2006-01-02T15:04:05Z"
-		t, err := time.Parse(layout, akInfo.Expiration)
-		if err != nil {
-			log.Errorf("Parse expiration error: %s", err.Error())
-		}
-		if t.Before(time.Now()) {
-			log.Errorf("invalid token which is expired, expiration as: %s", akInfo.Expiration)
-		}
-		AccessKeyID = string(ak)
-		AccessKeySecret = string(sk)
-		SecurityToken = string(token)
 	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Errorf("failed to create clientset, err: %v", err)
+		return "", "", ""
+	}
+
+	secret, err := clientset.CoreV1().Secrets("kube-system").Get(SecretName, metav1.GetOptions{})
+	if err != nil {
+		log.Errorf("failed to get token config, err: %v", err)
+		return "", "", ""
+	}
+
+	encodeTokenCfg := secret.Data[SecretConfigKey]
+	if encodeTokenCfg == nil {
+		log.Errorf("failed to read token config, err: %v", err)
+		return "", "", ""
+	}
+	err = json.Unmarshal(encodeTokenCfg, &akInfo)
+	if err != nil {
+		log.Errorf("error unmarshal token config: %v", err)
+		return "", "", ""
+	}
+	keyring := akInfo.Keyring
+	ak, err := Decrypt(akInfo.AccessKeyID, []byte(keyring))
+	if err != nil {
+		log.Errorf("failed to decode ak, err: %v", err)
+		return "", "", ""
+	}
+
+	sk, err := Decrypt(akInfo.AccessKeySecret, []byte(keyring))
+	if err != nil {
+		log.Errorf("failed to decode sk, err: %v", err)
+		return "", "", ""
+	}
+
+	token, err := Decrypt(akInfo.SecurityToken, []byte(keyring))
+	if err != nil {
+		log.Errorf("failed to decode token, err: %v", err)
+		return "", "", ""
+	}
+	layout := "2006-01-02T15:04:05Z"
+	t, err := time.Parse(layout, akInfo.Expiration)
+	if err != nil {
+		log.Errorf("Parse expiration error: %s", err.Error())
+	}
+	if t.Before(time.Now()) {
+		log.Errorf("invalid token which is expired, expiration as: %s", akInfo.Expiration)
+	}
+	AccessKeyID = string(ak)
+	AccessKeySecret = string(sk)
+	SecurityToken = string(token)
+
 	return AccessKeyID, AccessKeySecret, SecurityToken
 }
 
