@@ -413,7 +413,7 @@ func (c *ApplicationSourcePlugin) IsZero() bool {
 
 // ApplicationSourceTemplate holds template specific options
 type ApplicationSourceTemplate struct {
-	Id string `json:"id,omitempty" protobuf:"bytes,1,opt,id=id"`
+	Id string `json:"id,omitempty" protobuf:"bytes,1,opt,name=id"`
 }
 
 func (c *ApplicationSourceTemplate) IsZero() bool {
