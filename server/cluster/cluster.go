@@ -21,10 +21,10 @@ import (
 	"github.com/argoproj/argo-cd/util/db"
 	"github.com/argoproj/argo-cd/util/kube"
 	"github.com/argoproj/argo-cd/util/rbac"
-	"k8s.io/client-go/tools/clientcmd"
-	"strings"
 	"io/ioutil"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"strings"
 )
 
 // Server provides a Cluster service
@@ -207,6 +207,8 @@ func newCluster(name string, namespaces []string, conf *rest.Config, managerBear
 		Insecure:   conf.TLSClientConfig.Insecure,
 		ServerName: conf.TLSClientConfig.ServerName,
 		CAData:     conf.TLSClientConfig.CAData,
+		CertData:   conf.TLSClientConfig.CertData,
+		KeyData:    conf.TLSClientConfig.KeyData,
 	}
 	if len(conf.TLSClientConfig.CAData) == 0 && conf.TLSClientConfig.CAFile != "" {
 		data, _ := ioutil.ReadFile(conf.TLSClientConfig.CAFile)
