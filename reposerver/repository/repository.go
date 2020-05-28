@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"time"
 
 	executil "github.com/argoproj/argo-cd/util/exec"
 	"github.com/argoproj/argo-cd/util/security"
@@ -790,7 +791,7 @@ func (s *Service) GetAppDetails(ctx context.Context, q *apiclient.RepoServerAppD
 }
 
 func (s *Service) GetRevisionMetadata(ctx context.Context, q *apiclient.RepoServerRevisionMetadataRequest) (*v1alpha1.RevisionMetadata, error) {
-	if !git.IsCommitSHA(q.Revision) {
+	if !git.IsCommitSHA(q.Revision) && !template.IsRevisionHash(q.Revision) {
 		return nil, fmt.Errorf("revision %s must be resolved", q.Revision)
 	}
 	metadata, err := s.cache.GetRevisionMetadata(q.Repo.Repo, q.Revision)
@@ -805,29 +806,50 @@ func (s *Service) GetRevisionMetadata(ctx context.Context, q *apiclient.RepoServ
 		}
 	}
 
-	gitClient, _, err := s.newClientResolveRevision(q.Repo, q.Revision)
-	if err != nil {
-		return nil, err
+	if q.Repo.Type == "template" {
+		tClient := template.NewClient(q.Repo.Repo)
+		tpl, err := tClient.GetRevisionDetail(q.Revision)
+		if err != nil {
+			return nil, err
+		}
+
+		t, err := time.Parse("2006-01-02T15:04:05+07:00", tpl.Updated)
+		if err != nil {
+			t = time.Now()
+		}
+
+		metadata = &v1alpha1.RevisionMetadata{
+			Author:  tpl.Name,
+			Date:    metav1.Time{Time: t},
+			Tags:    []string{},
+			Message: tpl.Description,
+		}
+	} else {
+		gitClient, _, err := s.newClientResolveRevision(q.Repo, q.Revision)
+		if err != nil {
+			return nil, err
+		}
+
+		s.metricsServer.IncPendingRepoRequest(q.Repo.Repo)
+		defer s.metricsServer.DecPendingRepoRequest(q.Repo.Repo)
+
+		s.repoLock.Lock(gitClient.Root())
+		defer s.repoLock.Unlock(gitClient.Root())
+
+		_, err = checkoutRevision(gitClient, q.Revision)
+		if err != nil {
+			return nil, err
+		}
+
+		m, err := gitClient.RevisionMetadata(q.Revision)
+		if err != nil {
+			return nil, err
+		}
+		// discard anything after the first new line and then truncate to 64 chars
+		message := text.Trunc(strings.SplitN(m.Message, "\n", 2)[0], 64)
+		metadata = &v1alpha1.RevisionMetadata{Author: m.Author, Date: metav1.Time{Time: m.Date}, Tags: m.Tags, Message: message}
 	}
 
-	s.metricsServer.IncPendingRepoRequest(q.Repo.Repo)
-	defer s.metricsServer.DecPendingRepoRequest(q.Repo.Repo)
-
-	s.repoLock.Lock(gitClient.Root())
-	defer s.repoLock.Unlock(gitClient.Root())
-
-	_, err = checkoutRevision(gitClient, q.Revision)
-	if err != nil {
-		return nil, err
-	}
-
-	m, err := gitClient.RevisionMetadata(q.Revision)
-	if err != nil {
-		return nil, err
-	}
-	// discard anything after the first new line and then truncate to 64 chars
-	message := text.Trunc(strings.SplitN(m.Message, "\n", 2)[0], 64)
-	metadata = &v1alpha1.RevisionMetadata{Author: m.Author, Date: metav1.Time{Time: m.Date}, Tags: m.Tags, Message: message}
 	_ = s.cache.SetRevisionMetadata(q.Repo.Repo, q.Revision, metadata)
 	return metadata, nil
 }

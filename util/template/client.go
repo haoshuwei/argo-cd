@@ -15,6 +15,7 @@ import (
 type Client interface {
 	FetchTemplate(revision string) (string, util.Closer, error)
 	ResolveHeadRevision() (string, error)
+	GetRevisionDetail(string) (*template, error)
 }
 
 type templateClient struct {
@@ -23,10 +24,12 @@ type templateClient struct {
 }
 
 type template struct {
-	Id       string `json:"template_with_hist_id"`
-	Name     string `json:"name"`
-	Template string `json:"template"`
-	Revision string `json:"template_hash_code_version,omitempty"`
+	Id          string `json:"template_with_hist_id"`
+	Name        string `json:"name"`
+	Template    string `json:"template"`
+	Revision    string `json:"template_hash_code_version,omitempty"`
+	Description string `json:"description,omitempty"`
+	Updated     string `json:"updated"`
 }
 
 func NewClient(id string) Client {
@@ -58,6 +61,19 @@ func (c *templateClient) ResolveHeadRevision() (string, error) {
 	return t.Revision, nil
 }
 
+func (c *templateClient) GetRevisionDetail(revision string) (*template, error) {
+	if !IsRevisionHash(revision) {
+		return nil, fmt.Errorf("invalid template revision")
+	}
+
+	t, err := c.fetchTemplate(revision)
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
+}
+
 func (c *templateClient) fetchTemplate(revision string) (*template, error) {
 	err := c.newAliyunClient()
 	if err != nil {
@@ -84,11 +100,11 @@ func (c *templateClient) fetchTemplate(revision string) (*template, error) {
 		return nil, err
 	}
 
-	log.Infof("Got template from ack: %s %s", templates[0].Id, templates[0].Revision)
-
 	if len(templates) == 0 {
 		return nil, fmt.Errorf("versions not found for template %s", c.id)
 	}
+
+	log.Infof("Got template from ack: %s %s", templates[0].Id, templates[0].Revision)
 
 	if revision == "HEAD" {
 		return &templates[0], nil
