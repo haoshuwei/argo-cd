@@ -268,6 +268,9 @@ func clusterToData(c *appv1.Cluster) map[string][]byte {
 	if err != nil {
 		panic(err)
 	}
+	if c.ACKClusterID != "" {
+		data["ACKClusterID"] = []byte(c.ACKClusterID)
+	}
 	data["config"] = configBytes
 	return data
 }
@@ -291,6 +294,7 @@ func secretToCluster(s *apiv1.Secret) *appv1.Cluster {
 		Name:       string(s.Data["name"]),
 		Namespaces: namespaces,
 		Config:     config,
+		ACKClusterID: string(s.Data["ACKClusterID"]),
 	}
 	return &cluster
 }

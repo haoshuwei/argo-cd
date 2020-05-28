@@ -1055,6 +1055,8 @@ type Cluster struct {
 	ServerVersion string `json:"serverVersion,omitempty" protobuf:"bytes,5,opt,name=serverVersion"`
 	// Holds list of namespaces which are accessible in that cluster. Cluster level resources would be ignored if namespace list if not empty.
 	Namespaces []string `json:"namespaces,omitempty" protobuf:"bytes,6,opt,name=namespaces"`
+	//容器服务集群ID记录
+	ACKClusterID string `json:"ackClusterID,omitempty" protobuf:"bytes,7,opt,name=ackClusterID"`
 }
 
 // AckCluster is the definition of a cluster resource

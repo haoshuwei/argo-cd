@@ -162,6 +162,8 @@ func (s *Server) CreateACK(ctx context.Context, q *cluster.AckClusterCreateReque
 	clusterInfo := q.Cluster.ClusterID
 	// get cluster_name as context name
 	clusterName := strings.Split(clusterInfo, ":")[1]
+	clusterID := strings.Split(clusterInfo, ":")[0]
+
 	contextName := clusterName
 	// get kubeconfig content
 	kubeconfig := q.Cluster.Kubeconfig
@@ -186,13 +188,13 @@ func (s *Server) CreateACK(ctx context.Context, q *cluster.AckClusterCreateReque
 	}
 
 	systemNamespace := "kube-system"
-	namespaces := []string{}
+	var namespaces []string
 	managerBearerToken, err = clusterauth.InstallClusterManagerRBAC(clientset, systemNamespace, namespaces)
 	if err != nil {
 		return nil, err
 	}
 
-	clst := newCluster(contextName, namespaces, conf, managerBearerToken, nil)
+	clst := newCluster(contextName, namespaces, conf, managerBearerToken, nil, clusterID)
 
 	clstCreateReq := &cluster.ClusterCreateRequest{
 		Cluster: clst,
@@ -202,7 +204,8 @@ func (s *Server) CreateACK(ctx context.Context, q *cluster.AckClusterCreateReque
 	return s.Create(ctx, clstCreateReq)
 }
 
-func newCluster(name string, namespaces []string, conf *rest.Config, managerBearerToken string, awsAuthConf *appv1.AWSAuthConfig) *appv1.Cluster {
+func newCluster(name string, namespaces []string, conf *rest.Config, managerBearerToken string,
+	awsAuthConf *appv1.AWSAuthConfig, clusterID string) *appv1.Cluster {
 	tlsClientConfig := appv1.TLSClientConfig{
 		Insecure:   conf.TLSClientConfig.Insecure,
 		ServerName: conf.TLSClientConfig.ServerName,
@@ -223,6 +226,7 @@ func newCluster(name string, namespaces []string, conf *rest.Config, managerBear
 			TLSClientConfig: tlsClientConfig,
 			AWSAuthConfig:   awsAuthConf,
 		},
+		ACKClusterID: clusterID,
 	}
 	return &clst
 }
