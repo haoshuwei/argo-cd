@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"github.com/argoproj/argo-cd/util/clientpool"
 	"time"
 
 	"github.com/argoproj/pkg/stats"
@@ -62,6 +63,8 @@ func NewCommand() *cobra.Command {
 			kubeclientset := kubernetes.NewForConfigOrDie(config)
 			appclientset := appclientset.NewForConfigOrDie(config)
 			repoclientset := apiclient.NewRepoServerClientset(repoServerAddress, repoServerTimeoutSeconds)
+
+			clientpool.InitClientPool(kubeclientset, appclientset)
 
 			argoCDOpts := server.ArgoCDServerOpts{
 				Insecure:            insecure,

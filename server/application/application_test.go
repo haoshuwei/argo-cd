@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	coreerrors "errors"
+	"github.com/argoproj/argo-cd/util/clientpool"
 	"testing"
 	"time"
 
@@ -143,6 +144,8 @@ func newTestAppServer(objects ...runtime.Object) *Server {
 	fakeAppsClientset := apps.NewSimpleClientset(objects...)
 	factory := appinformer.NewFilteredSharedInformerFactory(fakeAppsClientset, 0, "", func(options *metav1.ListOptions) {})
 	fakeProjLister := factory.Argoproj().V1alpha1().AppProjects().Lister().AppProjects(testNamespace)
+
+	clientpool.InitClientPool(kubeclientset, fakeAppsClientset)
 
 	enforcer := rbac.NewEnforcer(kubeclientset, testNamespace, common.ArgoCDRBACConfigMapName, nil)
 	_ = enforcer.SetBuiltinPolicy(assets.BuiltinPolicyCSV)
