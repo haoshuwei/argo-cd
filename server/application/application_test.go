@@ -4,6 +4,7 @@ import (
 	"context"
 	coreerrors "errors"
 	"github.com/argoproj/argo-cd/util/clientpool"
+	"k8s.io/client-go/tools/clientcmd"
 	"testing"
 	"time"
 
@@ -145,7 +146,10 @@ func newTestAppServer(objects ...runtime.Object) *Server {
 	factory := appinformer.NewFilteredSharedInformerFactory(fakeAppsClientset, 0, "", func(options *metav1.ListOptions) {})
 	fakeProjLister := factory.Argoproj().V1alpha1().AppProjects().Lister().AppProjects(testNamespace)
 
-	clientpool.InitClientPool(kubeclientset, fakeAppsClientset)
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	loadingRules.DefaultClientConfig = &clientcmd.DefaultClientConfig
+	overrides := clientcmd.ConfigOverrides{}
+	clientpool.InitClientPool(loadingRules, &overrides, kubeclientset, fakeAppsClientset)
 
 	enforcer := rbac.NewEnforcer(kubeclientset, testNamespace, common.ArgoCDRBACConfigMapName, nil)
 	_ = enforcer.SetBuiltinPolicy(assets.BuiltinPolicyCSV)

@@ -52,6 +52,16 @@ func NewVersionCmd(cliName string) *cobra.Command {
 	return &versionCmd
 }
 
+func BindLoadingRulesAndOverrides(cmd *cobra.Command) (*clientcmd.ClientConfigLoadingRules, *clientcmd.ConfigOverrides) {
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	loadingRules.DefaultClientConfig = &clientcmd.DefaultClientConfig
+	overrides := clientcmd.ConfigOverrides{}
+	kflags := clientcmd.RecommendedConfigOverrideFlags("")
+	cmd.PersistentFlags().StringVar(&loadingRules.ExplicitPath, "kubeconfig", "", "Path to a kube config. Only required if out-of-cluster")
+	clientcmd.BindOverrideFlags(&overrides, cmd.PersistentFlags(), kflags)
+	return loadingRules, &overrides
+}
+
 // AddKubectlFlagsToCmd adds kubectl like flags to a command and returns the ClientConfig interface
 // for retrieving the values.
 func AddKubectlFlagsToCmd(cmd *cobra.Command) clientcmd.ClientConfig {

@@ -3,6 +3,7 @@ package clientpool
 import (
 	"fmt"
 	appclientset "github.com/argoproj/argo-cd/pkg/client/clientset/versioned"
+	"github.com/jinzhu/copier"
 	"github.com/patrickmn/go-cache"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
@@ -10,29 +11,36 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"time"
 )
 
 type ClientPool struct {
 	cache         *cache.Cache
+	loadingRules  *clientcmd.ClientConfigLoadingRules
+	overrides     *clientcmd.ConfigOverrides
 	kubeClientset kubernetes.Interface
 	appClientset  appclientset.Interface
 }
 
 var pool *ClientPool
 
-func InitClientPool(kubeClientset kubernetes.Interface, appClientset appclientset.Interface) {
+func InitClientPool(
+	loadingRules *clientcmd.ClientConfigLoadingRules,
+	overrides *clientcmd.ConfigOverrides,
+	kubeClientset kubernetes.Interface,
+	appClientset appclientset.Interface,
+) {
 	log.Infof("init client pool")
 	pool = &ClientPool{
 		cache:         cache.New(5*time.Minute, 10*time.Minute),
+		loadingRules:  loadingRules,
+		overrides:     overrides,
 		kubeClientset: kubeClientset,
 		appClientset:  appClientset,
 	}
 }
 
 func GetPool() *ClientPool {
-	log.Infof("get client pool: %v", pool)
 	return pool
 }
 
@@ -49,7 +57,7 @@ func (p ClientPool) GetAppClientset(ctx context.Context) appclientset.Interface 
 		return cachedClient.(appclientset.Interface)
 	}
 
-	restConfig, err := buildRestConfig(impersonate)
+	restConfig, err := p.buildRestConfig(impersonate)
 	if err != nil {
 		log.Warnf("failed to build client config for %s, using default client", impersonate)
 		return p.appClientset
@@ -78,7 +86,7 @@ func (p ClientPool) GetKubeClientset(ctx context.Context) kubernetes.Interface {
 		return cachedClient.(kubernetes.Interface)
 	}
 
-	restConfig, err := buildRestConfig(impersonate)
+	restConfig, err := p.buildRestConfig(impersonate)
 	if err != nil {
 		log.Warnf("failed to build client config for %s, using default client", impersonate)
 		return p.kubeClientset
@@ -109,15 +117,15 @@ func getImpersonateFromContext(ctx context.Context) string {
 	return userName
 }
 
-func buildRestConfig(impersonate string) (*rest.Config, error) {
-	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	loadingRules.DefaultClientConfig = &clientcmd.DefaultClientConfig
-	overrides := clientcmd.ConfigOverrides{
-		AuthInfo: clientcmdapi.AuthInfo{
-			Impersonate: impersonate,
-		},
+func (p ClientPool) buildRestConfig(impersonate string) (*rest.Config, error) {
+	overrides := clientcmd.ConfigOverrides{}
+	err := copier.Copy(&overrides, p.overrides)
+	if err != nil {
+		return nil, err
 	}
-	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, &overrides)
+
+	overrides.AuthInfo.Impersonate = impersonate
+	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(p.loadingRules, &overrides)
 	return config.ClientConfig()
 }
 
