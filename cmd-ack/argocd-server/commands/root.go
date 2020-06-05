@@ -2,6 +2,8 @@ package commands
 
 import (
 	"context"
+	"github.com/argoproj/argo-cd/util/clientpool"
+	"os"
 	"time"
 
 	"github.com/argoproj/pkg/stats"
@@ -29,6 +31,8 @@ func NewCommand() *cobra.Command {
 		logLevel                 string
 		glogLevel                int
 		clientConfig             clientcmd.ClientConfig
+		clientConfigLoadingRules *clientcmd.ClientConfigLoadingRules
+		clientConfigOverrides    *clientcmd.ConfigOverrides
 		repoServerTimeoutSeconds int
 		staticAssetsDir          string
 		baseHRef                 string
@@ -63,6 +67,8 @@ func NewCommand() *cobra.Command {
 			appclientset := appclientset.NewForConfigOrDie(config)
 			repoclientset := apiclient.NewRepoServerClientset(repoServerAddress, repoServerTimeoutSeconds)
 
+			clientpool.InitClientPool(clientConfigLoadingRules, clientConfigOverrides, kubeclientset, appclientset)
+
 			argoCDOpts := server.ArgoCDServerOpts{
 				Insecure:            insecure,
 				ListenPort:          listenPort,
@@ -94,7 +100,10 @@ func NewCommand() *cobra.Command {
 		},
 	}
 
-	clientConfig = cli.AddKubectlFlagsToCmd(command)
+	//clientConfig = cli.AddKubectlFlagsToCmd(command)
+	clientConfigLoadingRules, clientConfigOverrides = cli.BindLoadingRulesAndOverrides(command)
+	clientConfig = clientcmd.NewInteractiveDeferredLoadingClientConfig(clientConfigLoadingRules, clientConfigOverrides, os.Stdin)
+
 	command.Flags().BoolVar(&insecure, "insecure", false, "Run server without TLS")
 	command.Flags().StringVar(&staticAssetsDir, "staticassets", "", "Static assets directory path")
 	command.Flags().StringVar(&baseHRef, "basehref", "/", "Value for base href in index.html. Used if Argo CD is running behind reverse proxy under subpath different from /")
