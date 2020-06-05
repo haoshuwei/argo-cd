@@ -2299,7 +2299,7 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: argocd-server
     app.kubernetes.io/part-of: argocd
-  name: argocd-server
+  name: appcenter
   namespace: {{.Namespace}}
 spec:
   selector:
@@ -2325,7 +2325,7 @@ spec:
             port: 8080
           initialDelaySeconds: 3
           periodSeconds: 30
-        name: argocd-server
+        name: appcenter
         ports:
         - containerPort: 8080
         - containerPort: 8083
