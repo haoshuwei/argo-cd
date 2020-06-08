@@ -1,4 +1,4 @@
-insert into troopers_components(created, updated, category, name, template, version, description, labels, meta_data, constraints, is_deleted, sub_class) values ( '2020-05-25 21:55:24', '2020-05-25 21:55:24', 'addon.Default.Linux', 'appcenter', '{{ if eq .Action "Install" }}
+insert into troopers_components(created, updated, category, name, template, version, description, labels, meta_data, constraints, is_deleted, sub_class) values ( '2020-06-08 14:28:24', '2020-06-08 14:28:24', 'addon.Default.Linux', 'appcenter', '{{ if eq .Action "Install" }}
 ---
 apiVersion: v1
 kind: Namespace
@@ -2479,9 +2479,11 @@ spec:
         name: ssh-known-hosts
       - configMap:
           name: argocd-tls-certs-cm
-        name: tls-certs', 'v0.1.0-9b04d969a-aliyun', 'appcenter','', '{
-  "AppcenterImageVersion": "v0.1.0-9b04d969a-aliyun",
+        name: tls-certs', 'v0.1.1-9b04d969a-aliyun', 'appcenter','', '{
+  "AppcenterImageVersion": "v0.1.1-9b04d969a-aliyun",
+  "AgentImageTag": "v1.11.2",
   "Policy": "overwrite",
+  "MainContainerName": "appcenter",
   "UpgradeMethod": "Replace",
   "Namespace": "appcenter"
 }', null, 0, 'default');
