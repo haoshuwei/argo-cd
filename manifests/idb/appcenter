@@ -1,4 +1,4 @@
-insert into troopers_components(created, updated, category, name, template, version, description, labels, meta_data, constraints, is_deleted, sub_class) values ( '2020-06-08 14:28:24', '2020-06-08 14:28:24', 'addon.Default.Linux', 'appcenter', '{{ if eq .Action "Install" }}
+insert into troopers_components(created, updated, category, name, template, version, description, labels, meta_data, constraints, is_deleted, sub_class) values ( '2020-06-08 15:35:24', '2020-06-08 15:35:24', 'addon.Default.Linux', 'appcenter', '{{ if eq .Action "Install" }}
 ---
 apiVersion: v1
 kind: Namespace
