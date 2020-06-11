@@ -1,4 +1,4 @@
-insert into troopers_components(created, updated, category, name, template, version, description, labels, meta_data, constraints, is_deleted, sub_class) values ( '2020-05-25 21:55:24', '2020-05-25 21:55:24', 'addon.Default.Linux', 'appcenter', '{{ if eq .Action "Install" }}
+insert into troopers_components(created, updated, category, name, template, version, description, labels, meta_data, constraints, is_deleted, sub_class) values ( '2020-06-08 15:35:24', '2020-06-08 15:35:24', 'addon.Default.Linux', 'appcenter', '{{ if eq .Action "Install" }}
 ---
 apiVersion: v1
 kind: Namespace
@@ -41,7 +41,6 @@ metadata:
     app.kubernetes.io/part-of: argocd
   name: argocd-tls-certs-cm
   namespace: {{.Namespace}}
-{{ end }}
 ---
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
@@ -1919,6 +1918,7 @@ spec:
   - name: v1alpha1
     served: true
     storage: true
+{{ end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -2299,7 +2299,7 @@ metadata:
     app.kubernetes.io/component: server
     app.kubernetes.io/name: argocd-server
     app.kubernetes.io/part-of: argocd
-  name: argocd-server
+  name: appcenter
   namespace: {{.Namespace}}
 spec:
   selector:
@@ -2325,7 +2325,7 @@ spec:
             port: 8080
           initialDelaySeconds: 3
           periodSeconds: 30
-        name: argocd-server
+        name: appcenter
         ports:
         - containerPort: 8080
         - containerPort: 8083
@@ -2479,9 +2479,11 @@ spec:
         name: ssh-known-hosts
       - configMap:
           name: argocd-tls-certs-cm
-        name: tls-certs', 'v0.1.0-9b04d969a-aliyun', 'appcenter','', '{
-  "AppcenterImageVersion": "v0.1.0-9b04d969a-aliyun",
+        name: tls-certs', 'v0.1.1-9b04d969a-aliyun', 'appcenter','', '{
+  "AppcenterImageVersion": "v0.1.1-9b04d969a-aliyun",
+  "AgentImageTag": "v1.11.2",
   "Policy": "overwrite",
+  "MainContainerName": "appcenter",
   "UpgradeMethod": "Replace",
   "Namespace": "appcenter"
 }', null, 0, 'default');
