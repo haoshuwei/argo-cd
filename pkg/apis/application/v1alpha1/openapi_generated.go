@@ -580,6 +580,13 @@ func schema_pkg_apis_application_v1alpha1_ApplicationSource(ref common.Reference
 							Format:      "",
 						},
 					},
+					"repoNamespace": {
+						SchemaProps: spec.SchemaProps{
+							Description: "RepoNamespace is the namespace of Helm OCI-based repositoty",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 					"template": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Template holds template specific options",
@@ -1197,6 +1204,13 @@ func schema_pkg_apis_application_v1alpha1_Cluster(ref common.ReferenceCallback) 
 									},
 								},
 							},
+						},
+					},
+					"ackClusterID": {
+						SchemaProps: spec.SchemaProps{
+							Description: "容器服务集群ID记录",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
 				},

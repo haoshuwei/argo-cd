@@ -68,6 +68,9 @@ func NewRepoAddCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 
   # Add a private Helm repository named 'stable' via HTTPS
   appcenter repo add https://kubernetes-charts.storage.googleapis.com --type helm --name stable --username test --password test
+
+  # Add a private Helm OCI-based repository named 'stable' via HTTPS
+  argocd repo add helm-oci-registry.cn-zhangjiakou.cr.aliyuncs.com --type helm-oci --name stable --username test --password test
 `
 
 	var command = &cobra.Command{
@@ -126,8 +129,8 @@ func NewRepoAddCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 			repo.Insecure = insecureSkipServerVerification
 			repo.EnableLFS = enableLfs
 
-			if repo.Type == "helm" && repo.Name == "" {
-				errors.CheckError(fmt.Errorf("Must specify --name for repos of type 'helm'"))
+			if (repo.Type == "helm" || repo.Type == "helm-oci") && repo.Name == "" {
+				errors.CheckError(fmt.Errorf("Must specify --name for repos of type 'helm' or 'helm-oci'"))
 			}
 
 			conn, repoIf := argocdclient.NewClientOrDie(clientOpts).NewRepoClientOrDie()
@@ -170,7 +173,7 @@ func NewRepoAddCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 			fmt.Printf("repository '%s' added\n", createdRepo.Repo)
 		},
 	}
-	command.Flags().StringVar(&repo.Type, "type", common.DefaultRepoType, "type of the repository, \"git\" or \"helm\"")
+	command.Flags().StringVar(&repo.Type, "type", common.DefaultRepoType, "type of the repository, \"git\" or \"helm\" or \\\"helm-oci\\\"")
 	command.Flags().StringVar(&repo.Name, "name", "", "name of the repository, mandatory for repositories of type helm")
 	command.Flags().StringVar(&repo.Username, "username", "", "username to the repository")
 	command.Flags().StringVar(&repo.Password, "password", "", "password to the repository")

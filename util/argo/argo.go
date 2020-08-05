@@ -123,18 +123,12 @@ func WaitForRefresh(ctx context.Context, appIf v1alpha1.ApplicationInterface, na
 	return nil, fmt.Errorf("application refresh deadline exceeded")
 }
 
-func TestRepoWithKnownType(repo *argoappv1.Repository, repoType string) error {
-	if repoType == "template" {
+func TestRepoWithKnownType(repo *argoappv1.Repository) error {
+	if repo.Type == "template" {
 		return nil
 	}
 
 	repo = repo.DeepCopy()
-	//if isHelm {
-	//	repo.Type = "helm"
-	//} else {
-	//	repo.Type = "git"
-	//}
-	repo.Type = repoType
 	return TestRepo(repo)
 }
 
@@ -144,11 +138,11 @@ func TestRepo(repo *argoappv1.Repository) error {
 			return git.TestRepo(repo.Repo, repo.GetGitCreds(), repo.IsInsecure(), repo.IsLFSEnabled())
 		},
 		"helm": func() error {
-			_, err := helm.NewClient(repo.Type, repo.Repo, repo.GetHelmCreds()).GetIndex()
+			_, err := helm.NewClient(repo.Repo, repo.GetHelmCreds(), repo.Type).GetIndex()
 			return err
 		},
 		"helm-oci": func() error {
-			_, err := helm.NewClient(repo.Type, repo.Repo, repo.GetHelmCreds()).TestHelmOCI()
+			_, err := helm.NewClient(repo.Repo, repo.GetHelmCreds(), repo.Type).TestHelmOCI()
 			return err
 		},
 	}
@@ -194,7 +188,7 @@ func ValidateRepo(
 	}
 
 	repoAccessible := false
-	err = TestRepoWithKnownType(repo, app.Spec.Source.GetRepoType())
+	err = TestRepoWithKnownType(repo)
 	if err != nil {
 		conditions = append(conditions, argoappv1.ApplicationCondition{
 			Type:    argoappv1.ApplicationConditionInvalidSpecError,

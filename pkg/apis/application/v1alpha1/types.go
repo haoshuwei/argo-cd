@@ -139,8 +139,10 @@ type ApplicationSource struct {
 	Plugin *ApplicationSourcePlugin `json:"plugin,omitempty" protobuf:"bytes,11,opt,name=plugin"`
 	// Chart is a Helm chart name
 	Chart string `json:"chart,omitempty" protobuf:"bytes,12,opt,name=chart"`
+	// RepoNamespace is the namespace of Helm OCI-based repositoty
+	RepoNamespace string `json:"repoNamespace,omitempty" protobuf:"bytes,13,opt,name=repoNamespace"`
 	// Template holds template specific options
-	Template *ApplicationSourceTemplate `json:"template,omitempty" protobuf:"bytes,13,opt,name=template"`
+	Template *ApplicationSourceTemplate `json:"template,omitempty" protobuf:"bytes,14,opt,name=template"`
 }
 
 func (a *ApplicationSource) IsHelm() bool {

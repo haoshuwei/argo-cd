@@ -3452,6 +3452,10 @@
         "plugin": {
           "$ref": "#/definitions/v1alpha1ApplicationSourcePlugin"
         },
+        "repoNamespace": {
+          "type": "string",
+          "title": "RepoNamespace is the namespace of Helm OCI-based repositoty"
+        },
         "repoURL": {
           "type": "string",
           "title": "RepoURL is the repository URL of the application manifests"
@@ -3739,6 +3743,10 @@
       "type": "object",
       "title": "Cluster is the definition of a cluster resource",
       "properties": {
+        "ackClusterID": {
+          "type": "string",
+          "title": "容器服务集群ID记录"
+        },
         "config": {
           "$ref": "#/definitions/v1alpha1ClusterConfig"
         },

@@ -32,20 +32,17 @@ var (
 		ociSupported:            false,
 		getPostTemplateCallback: cleanupChartLockFile,
 	}
-	// HelmOCI represents helm OCI specific settings
-	HelmOCI = HelmVer{
-		binaryName:              "helm",
-		templateNameArg:         "--name-template",
-		kubeVersionSupported:    false,
-		showCommand:             "show",
-		pullCommand:             "pull",
-		initSupported:           false,
-		ociSupported:            true,
-		getPostTemplateCallback: cleanupChartLockFile,
+	// HelmV3 represents helm V3 specific settings
+	HelmV3Oci = HelmVer{
+		binaryName:                  "helm",
+		templateNameArg:             "--name-template",
+		kubeVersionSupported:        false,
+		showCommand:                 "show",
+		pullCommand:                 "pull",
+		initSupported:               false,
+		getPostTemplateCallback:     cleanupChartLockFile,
+		ociSupported:                true,
 	}
-	//
-	HelmOCIEnv = "HELM_EXPERIMENTAL_OCI=1"
-	HelmOCIType   = "helm-oci"
 )
 
 // workaround for Helm3 bug. Remove after https://github.com/helm/helm/issues/6870 is fixed.

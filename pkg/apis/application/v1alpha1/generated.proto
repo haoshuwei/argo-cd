@@ -159,8 +159,11 @@ message ApplicationSource {
   // Chart is a Helm chart name
   optional string chart = 12;
 
+  // RepoNamespace is the namespace of Helm OCI-based repositoty
+  optional string repoNamespace = 13;
+
   // Template holds template specific options
-  optional ApplicationSourceTemplate template = 13;
+  optional ApplicationSourceTemplate template = 14;
 }
 
 message ApplicationSourceDirectory {
@@ -333,6 +336,9 @@ message Cluster {
 
   // Holds list of namespaces which are accessible in that cluster. Cluster level resources would be ignored if namespace list if not empty.
   repeated string namespaces = 6;
+
+  // 容器服务集群ID记录
+  optional string ackClusterID = 7;
 }
 
 // ClusterConfig is the configuration attributes. This structure is subset of the go-client
