@@ -140,4 +140,4 @@ WORKDIR /home/argocd
 FROM argocd-base
 #COPY --from=argocd-build /go/src/github.com/argoproj/argo-cd/dist/argocd* /usr/local/bin/
 #COPY --from=argocd-ui ./src/dist/app /shared/app
-COPY ./src/dist/app /shared/app
+COPY ./app /shared/app
