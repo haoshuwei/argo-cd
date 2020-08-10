@@ -18,12 +18,12 @@ type Client struct {
 }
 
 // CleanChartCache provides a mock function with given fields: chart, version
-func (_m *Client) CleanChartCache(chart string, version *semver.Version) error {
-	ret := _m.Called(chart, version)
+func (_m *Client) CleanChartCache(repoNamespace string, chart string, version *semver.Version) error {
+	ret := _m.Called(repoNamespace, chart, version)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, *semver.Version) error); ok {
-		r0 = rf(chart, version)
+	if rf, ok := ret.Get(0).(func(string, string, *semver.Version) error); ok {
+		r0 = rf(repoNamespace, chart, version)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -32,19 +32,19 @@ func (_m *Client) CleanChartCache(chart string, version *semver.Version) error {
 }
 
 // ExtractChart provides a mock function with given fields: chart, version
-func (_m *Client) ExtractChart(chart string, version *semver.Version) (string, io.Closer, error) {
-	ret := _m.Called(chart, version)
+func (_m *Client) ExtractChart(repoNamespace string, chart string, version *semver.Version) (string, io.Closer, error) {
+	ret := _m.Called(repoNamespace, chart, version)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(string, *semver.Version) string); ok {
-		r0 = rf(chart, version)
+	if rf, ok := ret.Get(0).(func(string, string, *semver.Version) string); ok {
+		r0 = rf(repoNamespace, chart, version)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 io.Closer
-	if rf, ok := ret.Get(1).(func(string, *semver.Version) io.Closer); ok {
-		r1 = rf(chart, version)
+	if rf, ok := ret.Get(1).(func(string, string, *semver.Version) io.Closer); ok {
+		r1 = rf(repoNamespace, chart, version)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(io.Closer)
@@ -52,8 +52,8 @@ func (_m *Client) ExtractChart(chart string, version *semver.Version) (string, i
 	}
 
 	var r2 error
-	if rf, ok := ret.Get(2).(func(string, *semver.Version) error); ok {
-		r2 = rf(chart, version)
+	if rf, ok := ret.Get(2).(func(string, string, *semver.Version) error); ok {
+		r2 = rf(repoNamespace, chart, version)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -71,6 +71,29 @@ func (_m *Client) GetIndex() (*helm.Index, error) {
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*helm.Index)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// TestHelmOCI provides a mock function with given fields:
+func (_m *Client) TestHelmOCI() (bool, error) {
+	ret := _m.Called()
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func() bool); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(bool)
 		}
 	}
 

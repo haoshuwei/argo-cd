@@ -19,6 +19,7 @@ var (
 		showCommand:          "inspect",
 		pullCommand:          "fetch",
 		initSupported:        true,
+		ociSupported:         false,
 	}
 	// HelmV3 represents helm V3 specific settings
 	HelmV3 = HelmVer{
@@ -31,7 +32,24 @@ var (
 		getPostTemplateCallback:     cleanupChartLockFile,
 		additionalTemplateArgs:      []string{"--include-crds"},
 		insecureSkipVerifySupported: true,
+		ociSupported:                false,
 	}
+
+	// HelmV3 represents helm V3 specific settings
+	HelmV3Oci = HelmVer{
+		binaryName:                  "helm",
+		templateNameArg:             "--name-template",
+		kubeVersionSupported:        false,
+		showCommand:                 "show",
+		pullCommand:                 "pull",
+		initSupported:               false,
+		getPostTemplateCallback:     cleanupChartLockFile,
+		additionalTemplateArgs:      []string{"--include-crds"},
+		insecureSkipVerifySupported: true,
+		ociSupported:                true,
+	}
+
+	HelmOCIEnv = "HELM_EXPERIMENTAL_OCI=1"
 )
 
 // workaround for Helm3 bug. Remove after https://github.com/helm/helm/issues/6870 is fixed.
@@ -86,4 +104,5 @@ type HelmVer struct {
 	getPostTemplateCallback     func(chartPath string) (func(), error)
 	additionalTemplateArgs      []string
 	insecureSkipVerifySupported bool
+	ociSupported                bool
 }

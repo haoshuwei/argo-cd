@@ -616,6 +616,13 @@ func schema_pkg_apis_application_v1alpha1_ApplicationSource(ref common.Reference
 							Format:      "",
 						},
 					},
+					"repoNamespace": {
+						SchemaProps: spec.SchemaProps{
+							Description: "RepoNamespace is the namespace of Helm OCI-based repositoty",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"repoURL"},
 			},

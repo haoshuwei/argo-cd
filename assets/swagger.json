@@ -3663,6 +3663,10 @@
         "plugin": {
           "$ref": "#/definitions/v1alpha1ApplicationSourcePlugin"
         },
+        "repoNamespace": {
+          "type": "string",
+          "title": "RepoNamespace is the namespace of Helm OCI-based repositoty"
+        },
         "repoURL": {
           "type": "string",
           "title": "RepoURL is the repository URL of the application manifests"
@@ -5310,6 +5314,32 @@
           "type": "string"
         }
       }
+    }
+  },
+  "x-stream-definitions": {
+    "applicationLogEntry": {
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/runtimeStreamError"
+        },
+        "result": {
+          "$ref": "#/definitions/applicationLogEntry"
+        }
+      },
+      "title": "Stream result of applicationLogEntry",
+      "type": "object"
+    },
+    "v1alpha1ApplicationWatchEvent": {
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/runtimeStreamError"
+        },
+        "result": {
+          "$ref": "#/definitions/v1alpha1ApplicationWatchEvent"
+        }
+      },
+      "title": "Stream result of v1alpha1ApplicationWatchEvent",
+      "type": "object"
     }
   }
 }

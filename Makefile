@@ -24,8 +24,8 @@ ARGOCD_PROCFILE?=Procfile
 
 # Configuration for building argocd-test-tools image
 TEST_TOOLS_NAMESPACE?=
-TEST_TOOLS_IMAGE=argocd-test-tools
-TEST_TOOLS_TAG?=latest
+TEST_TOOLS_IMAGE=argoproj/argocd-test-tools
+TEST_TOOLS_TAG?=v0.5.0
 ifdef TEST_TOOLS_NAMESPACE
 TEST_TOOLS_PREFIX=${TEST_TOOLS_NAMESPACE}/
 endif
@@ -55,6 +55,7 @@ define run-in-test-server
 		-e ARGOCD_IN_CI=$(ARGOCD_IN_CI) \
 		-e ARGOCD_E2E_TEST=$(ARGOCD_E2E_TEST) \
 		-e ARGOCD_E2E_YARN_HOST=$(ARGOCD_E2E_YARN_HOST) \
+		-e GOPROXY=https://goproxy.cn \
 		-v ${DOCKER_SRCDIR}:/go/src${VOLUME_MOUNT} \
 		-v ${GOPATH}/pkg/mod:/go/pkg/mod${VOLUME_MOUNT} \
 		-v ${GOCACHE}:/tmp/go-build-cache${VOLUME_MOUNT} \
@@ -77,6 +78,7 @@ define run-in-test-client
 		-e ARGOCD_E2E_K3S=$(ARGOCD_E2E_K3S) \
 		-e GOCACHE=/tmp/go-build-cache \
 		-e ARGOCD_LINT_GOGC=$(ARGOCD_LINT_GOGC) \
+		-e GOPROXY=https://goproxy.cn \
 		-v ${DOCKER_SRCDIR}:/go/src${VOLUME_MOUNT} \
 		-v ${GOPATH}/pkg/mod:/go/pkg/mod${VOLUME_MOUNT} \
 		-v ${GOCACHE}:/tmp/go-build-cache${VOLUME_MOUNT} \
@@ -193,8 +195,8 @@ argocd-util: clean-debug
 
 .PHONY: test-tools-image
 test-tools-image:
-	docker build -t $(TEST_TOOLS_PREFIX)$(TEST_TOOLS_IMAGE) -f test/container/Dockerfile .
-	docker tag $(TEST_TOOLS_PREFIX)$(TEST_TOOLS_IMAGE) $(TEST_TOOLS_PREFIX)$(TEST_TOOLS_IMAGE):$(TEST_TOOLS_TAG)
+# 	docker build -t $(TEST_TOOLS_PREFIX)$(TEST_TOOLS_IMAGE) -f test/container/Dockerfile .
+# 	docker tag $(TEST_TOOLS_PREFIX)$(TEST_TOOLS_IMAGE) $(TEST_TOOLS_PREFIX)$(TEST_TOOLS_IMAGE):$(TEST_TOOLS_TAG)
 
 .PHONY: manifests-local
 manifests-local:

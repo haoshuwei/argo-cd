@@ -39,21 +39,23 @@ type Creds struct {
 }
 
 type Client interface {
-	CleanChartCache(chart string, version *semver.Version) error
-	ExtractChart(chart string, version *semver.Version) (string, io.Closer, error)
+	CleanChartCache(repoNamespace string, chart string, version *semver.Version) error
+	ExtractChart(repoNamespace string, chart string, version *semver.Version) (string, io.Closer, error)
 	GetIndex() (*Index, error)
+	TestHelmOCI() (bool, error)
 }
 
-func NewClient(repoURL string, creds Creds) Client {
-	return NewClientWithLock(repoURL, creds, globalLock)
+func NewClient(repoURL string, creds Creds, repoType string) Client {
+	return NewClientWithLock(repoURL, creds, globalLock, repoType)
 }
 
-func NewClientWithLock(repoURL string, creds Creds, repoLock *util.KeyLock) Client {
+func NewClientWithLock(repoURL string, creds Creds, repoLock *util.KeyLock, repoType string) Client {
 	return &nativeHelmChart{
 		repoURL:  repoURL,
 		creds:    creds,
 		repoPath: filepath.Join(os.TempDir(), strings.Replace(repoURL, "/", "_", -1)),
 		repoLock: repoLock,
+		repoType: repoType,
 	}
 }
 
@@ -62,6 +64,7 @@ type nativeHelmChart struct {
 	repoURL  string
 	creds    Creds
 	repoLock *util.KeyLock
+	repoType string
 }
 
 func fileExist(filePath string) (bool, error) {
@@ -86,16 +89,16 @@ func (c *nativeHelmChart) ensureHelmChartRepoPath() error {
 	return nil
 }
 
-func (c *nativeHelmChart) CleanChartCache(chart string, version *semver.Version) error {
-	return os.RemoveAll(c.getChartPath(chart, version))
+func (c *nativeHelmChart) CleanChartCache(repoNamespace string, chart string, version *semver.Version) error {
+	return os.RemoveAll(c.getChartPath(repoNamespace, chart, version))
 }
 
-func (c *nativeHelmChart) ExtractChart(chart string, version *semver.Version) (string, io.Closer, error) {
+func (c *nativeHelmChart) ExtractChart(repoNamespace string, chart string, version *semver.Version) (string, io.Closer, error) {
 	err := c.ensureHelmChartRepoPath()
 	if err != nil {
 		return "", nil, err
 	}
-	chartPath := c.getChartPath(chart, version)
+	chartPath := c.getChartPath(repoNamespace, chart, version)
 
 	c.repoLock.Lock(chartPath)
 	defer c.repoLock.Unlock(chartPath)
@@ -106,7 +109,13 @@ func (c *nativeHelmChart) ExtractChart(chart string, version *semver.Version) (s
 	}
 	if !exists {
 		// always use Helm V3 since we don't have chart content to determine correct Helm version
-		helmCmd, err := NewCmdWithVersion(c.repoPath, HelmV3)
+		helmCmd := &Cmd{}
+		if c.repoType == "helm-oci" {
+			helmCmd, err = NewCmdWithVersion(c.repoPath, HelmV3Oci)
+		} else {
+			helmCmd, err = NewCmdWithVersion(c.repoPath, HelmV3)
+		}
+
 		if err != nil {
 			return "", nil, err
 		}
@@ -117,13 +126,21 @@ func (c *nativeHelmChart) ExtractChart(chart string, version *semver.Version) (s
 			return "", nil, err
 		}
 
+		_, err = helmCmd.Login(c.repoURL, c.creds)
+		if err != nil {
+			return "", nil, err
+		}
+		defer func() {
+			_, _ = helmCmd.Logout(c.repoURL, c.creds)
+		}()
+
 		// (1) because `helm fetch` downloads an arbitrary file name, we download to an empty temp directory
 		tempDest, err := ioutil.TempDir("", "helm")
 		if err != nil {
 			return "", nil, err
 		}
 		defer func() { _ = os.RemoveAll(tempDest) }()
-		_, err = helmCmd.Fetch(c.repoURL, chart, version.String(), tempDest, c.creds)
+		_, err = helmCmd.Fetch(repoNamespace, c.repoURL, chart, version.String(), tempDest, c.creds)
 		if err != nil {
 			return "", nil, err
 		}
@@ -150,7 +167,7 @@ func (c *nativeHelmChart) ExtractChart(chart string, version *semver.Version) (s
 	cmd.Dir = tempDir
 	_, err = executil.Run(cmd)
 	if err != nil {
-		_ = os.RemoveAll(tempDir)
+		//_ = os.RemoveAll(tempDir)
 		return "", nil, err
 	}
 	return path.Join(tempDir, normalizeChartName(chart)), io.NewCloser(func() error {
@@ -175,6 +192,34 @@ func (c *nativeHelmChart) GetIndex() (*Index, error) {
 	log.WithFields(log.Fields{"seconds": time.Since(start).Seconds()}).Info("took to get index")
 
 	return index, nil
+}
+
+func (c *nativeHelmChart) TestHelmOCI() (bool, error) {
+	start := time.Now()
+
+	tmpDir, err := ioutil.TempDir("", "helm")
+	if err != nil {
+		return false, err
+	}
+	defer func() { _ = os.RemoveAll(tmpDir) }()
+
+	helmCmd, err := NewCmdWithVersion(tmpDir, HelmV3Oci)
+	if err != nil {
+		return false, err
+	}
+	defer helmCmd.Close()
+
+	_, err = helmCmd.Login(c.repoURL, c.creds)
+	if err != nil {
+		return false, err
+	}
+	defer func() {
+		_, _ = helmCmd.Logout(c.repoURL, c.creds)
+	}()
+
+	log.WithFields(log.Fields{"seconds": time.Since(start).Seconds()}).Info("took to test helm oci repository")
+
+	return true, nil
 }
 
 func (c *nativeHelmChart) loadRepoIndex() ([]byte, error) {
@@ -252,6 +297,9 @@ func normalizeChartName(chart string) string {
 	return nc
 }
 
-func (c *nativeHelmChart) getChartPath(chart string, version *semver.Version) string {
+func (c *nativeHelmChart) getChartPath(repoNamespace string, chart string, version *semver.Version) string {
+	if repoNamespace != "" {
+		return path.Join(c.repoPath, fmt.Sprintf("%s-%s-%v.tgz", repoNamespace, normalizeChartName(chart), version))
+	}
 	return path.Join(c.repoPath, fmt.Sprintf("%s-%v.tgz", normalizeChartName(chart), version))
 }

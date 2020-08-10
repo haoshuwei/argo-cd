@@ -125,11 +125,6 @@ func WaitForRefresh(ctx context.Context, appIf v1alpha1.ApplicationInterface, na
 
 func TestRepoWithKnownType(repo *argoappv1.Repository, isHelm bool) error {
 	repo = repo.DeepCopy()
-	if isHelm {
-		repo.Type = "helm"
-	} else {
-		repo.Type = "git"
-	}
 	return TestRepo(repo)
 }
 
@@ -139,7 +134,11 @@ func TestRepo(repo *argoappv1.Repository) error {
 			return git.TestRepo(repo.Repo, repo.GetGitCreds(), repo.IsInsecure(), repo.IsLFSEnabled())
 		},
 		"helm": func() error {
-			_, err := helm.NewClient(repo.Repo, repo.GetHelmCreds()).GetIndex()
+			_, err := helm.NewClient(repo.Repo, repo.GetHelmCreds(), repo.Type).GetIndex()
+			return err
+		},
+		"helm-oci": func() error {
+			_, err := helm.NewClient(repo.Repo, repo.GetHelmCreds(), repo.Type).TestHelmOCI()
 			return err
 		},
 	}

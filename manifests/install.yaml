@@ -305,6 +305,10 @@ spec:
                         name:
                           type: string
                       type: object
+                    repoNamespace:
+                      description: RepoNamespace is the namespace of Helm OCI-based
+                        repositoty
+                      type: string
                     repoURL:
                       description: RepoURL is the repository URL of the application
                         manifests
@@ -601,6 +605,9 @@ spec:
                     name:
                       type: string
                   type: object
+                repoNamespace:
+                  description: RepoNamespace is the namespace of Helm OCI-based repositoty
+                  type: string
                 repoURL:
                   description: RepoURL is the repository URL of the application manifests
                   type: string
@@ -903,6 +910,10 @@ spec:
                           name:
                             type: string
                         type: object
+                      repoNamespace:
+                        description: RepoNamespace is the namespace of Helm OCI-based
+                          repositoty
+                        type: string
                       repoURL:
                         description: RepoURL is the repository URL of the application
                           manifests
@@ -1227,6 +1238,10 @@ spec:
                                 name:
                                   type: string
                               type: object
+                            repoNamespace:
+                              description: RepoNamespace is the namespace of Helm
+                                OCI-based repositoty
+                              type: string
                             repoURL:
                               description: RepoURL is the repository URL of the application
                                 manifests
@@ -1524,6 +1539,10 @@ spec:
                             name:
                               type: string
                           type: object
+                        repoNamespace:
+                          description: RepoNamespace is the namespace of Helm OCI-based
+                            repositoty
+                          type: string
                         repoURL:
                           description: RepoURL is the repository URL of the application
                             manifests
@@ -1810,6 +1829,10 @@ spec:
                             name:
                               type: string
                           type: object
+                        repoNamespace:
+                          description: RepoNamespace is the namespace of Helm OCI-based
+                            repositoty
+                          type: string
                         repoURL:
                           description: RepoURL is the repository URL of the application
                             manifests

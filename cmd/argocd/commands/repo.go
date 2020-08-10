@@ -69,6 +69,9 @@ func NewRepoAddCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 
   # Add a private Helm repository named 'stable' via HTTPS
   argocd repo add https://kubernetes-charts.storage.googleapis.com --type helm --name stable --username test --password test
+
+  # Add a private Helm OCI-based repository named 'stable' via HTTPS
+  argocd repo add helm-oci-registry.cn-zhangjiakou.cr.aliyuncs.com --type helm --name stable --enable-oci --username test --password test
 `
 
 	var command = &cobra.Command{
@@ -129,6 +132,10 @@ func NewRepoAddCommand(clientOpts *argocdclient.ClientOptions) *cobra.Command {
 
 			if repo.Type == "helm" && repo.Name == "" {
 				errors.CheckError(fmt.Errorf("Must specify --name for repos of type 'helm'"))
+			}
+
+			if repo.Type == "helm" && repo.Name == "" {
+				errors.CheckError(fmt.Errorf("Must specify --name for repos of type 'helm-oci'"))
 			}
 
 			conn, repoIf := argocdclient.NewClientOrDie(clientOpts).NewRepoClientOrDie()

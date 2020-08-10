@@ -122,6 +122,9 @@ func NewApplicationCreateCommand(clientOpts *argocdclient.ClientOptions) *cobra.
 	# Create a Helm app from a Helm repo
 	argocd app create nginx-ingress --repo https://kubernetes-charts.storage.googleapis.com --helm-chart nginx-ingress --revision 1.24.3 --dest-namespace default --dest-server https://kubernetes.default.svc
 
+	# Create a Helm app from a Helm OCI-based repo
+	argocd app create nginx-ingress --repo helm-oci-registry.cn-zhangjiakou.cr.aliyuncs.com --repo-namespace acs --helm-chart nginx-ingress --revision 1.24.3 --dest-namespace default --dest-server https://kubernetes.default.svc
+
 	# Create a Kustomize app
 	argocd app create kustomize-guestbook --repo https://github.com/argoproj/argocd-example-apps.git --path kustomize-guestbook --dest-namespace default --dest-server https://kubernetes.default.svc --kustomize-image gcr.io/heptio-images/ks-guestbook-demo=0.1
 
@@ -502,6 +505,8 @@ func setAppSpecOptions(flags *pflag.FlagSet, spec *argoappv1.ApplicationSpec, ap
 			setKsonnetOpt(&spec.Source, &appOpts.env)
 		case "revision":
 			spec.Source.TargetRevision = appOpts.revision
+		case "repo-namespace":
+			spec.Source.RepoNamespace = appOpts.repoNamespace
 		case "revision-history-limit":
 			i := int64(appOpts.revisionHistoryLimit)
 			spec.RevisionHistoryLimit = &i
@@ -720,6 +725,7 @@ type appOptions struct {
 	chart                  string
 	env                    string
 	revision               string
+	repoNamespace          string
 	revisionHistoryLimit   int
 	destName               string
 	destServer             string
@@ -755,6 +761,7 @@ func addAppFlags(command *cobra.Command, opts *appOptions) {
 	command.Flags().StringVar(&opts.chart, "helm-chart", "", "Helm Chart name")
 	command.Flags().StringVar(&opts.env, "env", "", "Application environment to monitor")
 	command.Flags().StringVar(&opts.revision, "revision", "", "The tracking source branch, tag, commit or Helm chart version the application will sync to")
+	command.Flags().StringVar(&opts.repoNamespace, "repo-namespace", "", "The namespace of the Helm OCI-based repository")
 	command.Flags().IntVar(&opts.revisionHistoryLimit, "revision-history-limit", common.RevisionHistoryLimit, "How many items to keep in revision history")
 	command.Flags().StringVar(&opts.destServer, "dest-server", "", "K8s cluster URL (e.g. https://kubernetes.default.svc)")
 	command.Flags().StringVar(&opts.destName, "dest-name", "", "K8s cluster Name (e.g. minikube)")

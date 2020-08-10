@@ -162,6 +162,9 @@ message ApplicationSource {
 
   // Chart is a Helm chart name
   optional string chart = 12;
+
+  // RepoNamespace is the namespace of Helm OCI-based repositoty
+  optional string repoNamespace = 13;
 }
 
 message ApplicationSourceDirectory {

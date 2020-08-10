@@ -11,6 +11,7 @@ import (
 
 	executil "github.com/argoproj/gitops-engine/pkg/utils/exec"
 	"github.com/argoproj/gitops-engine/pkg/utils/io"
+	log "github.com/sirupsen/logrus"
 )
 
 // A thin wrapper around the "helm" command, adding logging and error translation.
@@ -19,6 +20,7 @@ type Cmd struct {
 	helmHome string
 	WorkDir  string
 	IsLocal  bool
+	RepoType string
 }
 
 func NewCmd(workDir string) (*Cmd, error) {
@@ -43,22 +45,108 @@ var redactor = func(text string) string {
 }
 
 func (c Cmd) run(args ...string) (string, error) {
+	//argsStr := strings.Join(args, " ")
+	//cmd := exec.Command("sh", "-c", argsStr)
 	cmd := exec.Command(c.binaryName, args...)
 	cmd.Dir = c.WorkDir
 	cmd.Env = os.Environ()
-	if !c.IsLocal {
-		cmd.Env = append(cmd.Env,
-			fmt.Sprintf("XDG_CACHE_HOME=%s/cache", c.helmHome),
-			fmt.Sprintf("XDG_CONFIG_HOME=%s/config", c.helmHome),
-			fmt.Sprintf("XDG_DATA_HOME=%s/data", c.helmHome),
-			fmt.Sprintf("HELM_HOME=%s", c.helmHome))
+	if c.ociSupported {
+		if !c.IsLocal {
+			cmd.Env = append(cmd.Env,
+				fmt.Sprint("HELM_EXPERIMENTAL_OCI=1"),
+				fmt.Sprintf("XDG_CACHE_HOME=%s/cache", c.helmHome),
+				fmt.Sprintf("XDG_CONFIG_HOME=%s/config", c.helmHome),
+				fmt.Sprintf("XDG_DATA_HOME=%s/data", c.helmHome),
+				fmt.Sprintf("HELM_HOME=%s", c.helmHome))
+		} else {
+			cmd.Env = append(cmd.Env,
+				fmt.Sprint("HELM_EXPERIMENTAL_OCI=1"))
+		}
+	} else {
+		if !c.IsLocal {
+			cmd.Env = append(cmd.Env,
+				fmt.Sprint("HELM_EXPERIMENTAL_OCI=1"),
+				fmt.Sprintf("XDG_CACHE_HOME=%s/cache", c.helmHome),
+				fmt.Sprintf("XDG_CONFIG_HOME=%s/config", c.helmHome),
+				fmt.Sprintf("XDG_DATA_HOME=%s/data", c.helmHome),
+				fmt.Sprintf("HELM_HOME=%s", c.helmHome))
+		}
 	}
+
 	return executil.RunWithRedactor(cmd, redactor)
 }
 
 func (c *Cmd) Init() (string, error) {
 	if c.initSupported {
 		return c.run("init", "--client-only", "--skip-refresh")
+	}
+	return "", nil
+}
+
+func (c *Cmd) Login(repo string, creds Creds) (string, error) {
+	if c.ociSupported {
+		args := []string{"registry", "login"}
+		args = append(args, repo)
+
+		if creds.Username != "" {
+			args = append(args, "--username", creds.Username)
+		}
+
+		if creds.Password != "" {
+			args = append(args, "--password", creds.Password)
+		}
+
+		if creds.CAPath != "" {
+			args = append(args, "--ca-file", creds.CAPath)
+		}
+		if len(creds.CertData) > 0 {
+			filePath, closer, err := writeToTmp(creds.CertData)
+			if err != nil {
+				return "", err
+			}
+			defer io.Close(closer)
+			args = append(args, "--cert-file", filePath)
+		}
+		if len(creds.KeyData) > 0 {
+			filePath, closer, err := writeToTmp(creds.KeyData)
+			if err != nil {
+				return "", err
+			}
+			defer io.Close(closer)
+			args = append(args, "--key-file", filePath)
+		}
+
+		return c.run(args...)
+	}
+	return "", nil
+}
+
+func (c *Cmd) Logout(repo string, creds Creds) (string, error) {
+	if c.ociSupported {
+		args := []string{"registry", "logout"}
+		args = append(args, repo)
+
+		if creds.CAPath != "" {
+			args = append(args, "--ca-file", creds.CAPath)
+		}
+		if len(creds.CertData) > 0 {
+			filePath, closer, err := writeToTmp(creds.CertData)
+			if err != nil {
+				return "", err
+			}
+			defer io.Close(closer)
+			args = append(args, "--cert-file", filePath)
+		}
+		if len(creds.KeyData) > 0 {
+			filePath, closer, err := writeToTmp(creds.KeyData)
+			if err != nil {
+				return "", err
+			}
+			defer io.Close(closer)
+			args = append(args, "--key-file", filePath)
+		}
+
+		return c.run(args...)
 	}
 	return "", nil
 }
@@ -132,40 +220,125 @@ func writeToTmp(data []byte) (string, io.Closer, error) {
 	}), nil
 }
 
-func (c *Cmd) Fetch(repo, chartName, version, destination string, creds Creds) (string, error) {
-	args := []string{c.pullCommand, "--destination", destination}
+func (c *Cmd) Fetch(repoNamespace, repo, chartName, version, destination string, creds Creds) (string, error) {
+	output := ""
+	var err error
+	if c.ociSupported {
+		args := []string{"chart", "pull"}
+		repoUrl := fmt.Sprintf(repo + "/" + repoNamespace + "/" + chartName + ":" + version)
+		log.Infof("Helm OCI-based repository is %s", repoUrl)
 
-	if version != "" {
-		args = append(args, "--version", version)
-	}
-	if creds.Username != "" {
-		args = append(args, "--username", creds.Username)
-	}
-	if creds.Password != "" {
-		args = append(args, "--password", creds.Password)
-	}
-	if creds.CAPath != "" {
-		args = append(args, "--ca-file", creds.CAPath)
-	}
-	if len(creds.CertData) > 0 {
-		filePath, closer, err := writeToTmp(creds.CertData)
+		args = append(args, repoUrl)
+
+		if creds.CAPath != "" {
+			args = append(args, "--ca-file", creds.CAPath)
+		}
+		if len(creds.CertData) > 0 {
+			filePath, closer, err := writeToTmp(creds.CertData)
+			if err != nil {
+				return "", err
+			}
+			defer io.Close(closer)
+			args = append(args, "--cert-file", filePath)
+		}
+		if len(creds.KeyData) > 0 {
+			filePath, closer, err := writeToTmp(creds.KeyData)
+			if err != nil {
+				return "", err
+			}
+			defer io.Close(closer)
+			args = append(args, "--key-file", filePath)
+		}
+
+		_, err := c.run(args...)
 		if err != nil {
 			return "", err
 		}
-		defer io.Close(closer)
-		args = append(args, "--cert-file", filePath)
-	}
-	if len(creds.KeyData) > 0 {
-		filePath, closer, err := writeToTmp(creds.KeyData)
+
+		// helm chart export
+		args = []string{"chart", "export", repoUrl, "--destination", destination}
+
+		if creds.CAPath != "" {
+			args = append(args, "--ca-file", creds.CAPath)
+		}
+		if len(creds.CertData) > 0 {
+			filePath, closer, err := writeToTmp(creds.CertData)
+			if err != nil {
+				return "", err
+			}
+			defer io.Close(closer)
+			args = append(args, "--cert-file", filePath)
+		}
+		if len(creds.KeyData) > 0 {
+			filePath, closer, err := writeToTmp(creds.KeyData)
+			if err != nil {
+				return "", err
+			}
+			defer io.Close(closer)
+			args = append(args, "--key-file", filePath)
+		}
+
+		output, err = c.run(args...)
 		if err != nil {
 			return "", err
 		}
-		defer io.Close(closer)
-		args = append(args, "--key-file", filePath)
+
+		// tar helm chart
+		cmd := exec.Command("tar", "-zcvf", repoNamespace+"-"+chartName+"-"+version+".tgz", chartName)
+		cmd.Dir = destination
+		_, err = executil.Run(cmd)
+		if err != nil {
+			return "", err
+		}
+
+		// remove helm chart
+		cmd = exec.Command("rm", "-rf", chartName)
+		cmd.Dir = destination
+		_, err = executil.Run(cmd)
+		if err != nil {
+			return "", err
+		}
+
+	} else {
+		args := []string{c.pullCommand, "--destination", destination}
+
+		if version != "" {
+			args = append(args, "--version", version)
+		}
+		if creds.Username != "" {
+			args = append(args, "--username", creds.Username)
+		}
+		if creds.Password != "" {
+			args = append(args, "--password", creds.Password)
+		}
+		if creds.CAPath != "" {
+			args = append(args, "--ca-file", creds.CAPath)
+		}
+		if len(creds.CertData) > 0 {
+			filePath, closer, err := writeToTmp(creds.CertData)
+			if err != nil {
+				return "", err
+			}
+			defer io.Close(closer)
+			args = append(args, "--cert-file", filePath)
+		}
+		if len(creds.KeyData) > 0 {
+			filePath, closer, err := writeToTmp(creds.KeyData)
+			if err != nil {
+				return "", err
+			}
+			defer io.Close(closer)
+			args = append(args, "--key-file", filePath)
+		}
+
+		args = append(args, "--repo", repo, chartName)
+		output, err = c.run(args...)
+		if err != nil {
+			return "", err
+		}
 	}
 
-	args = append(args, "--repo", repo, chartName)
-	return c.run(args...)
+	return output, nil
 }
 
 func (c *Cmd) dependencyBuild() (string, error) {
@@ -204,6 +377,7 @@ func (c *Cmd) template(chartPath string, opts *TemplateOpts) (string, error) {
 		}
 	}
 
+	log.Infof("+++++: %v", opts)
 	args := []string{"template", chartPath, c.templateNameArg, opts.Name}
 
 	if opts.Namespace != "" {
