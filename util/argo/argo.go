@@ -190,11 +190,12 @@ func ValidateRepo(
 	}
 
 	repoAccessible := false
-	err = TestRepoWithKnownType(repo, app.Spec.Source.GetRepoType())
+	repoType := app.Spec.Source.GetRepoType()
+	err = TestRepoWithKnownType(repo, repoType)
 	if err != nil {
 		conditions = append(conditions, argoappv1.ApplicationCondition{
 			Type:    argoappv1.ApplicationConditionInvalidSpecError,
-			Message: fmt.Sprintf("repository not accessible: %v", err),
+			Message: fmt.Sprintf("repository not accessible: %v", repoType),
 		})
 	} else {
 		repoAccessible = true
