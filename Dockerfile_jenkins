@@ -92,18 +92,18 @@ WORKDIR /home/argocd
 ####################################################################################################
 # Argo CD UI stage
 ####################################################################################################
-FROM node:11.15.0 as argocd-ui
+#FROM node:11.15.0 as argocd-ui
 
-WORKDIR /src
-ADD ["ui/package.json", "ui/yarn.lock", "./"]
+#WORKDIR /src
+#ADD ["ui/package.json", "ui/yarn.lock", "./"]
 
-RUN yarn install
+#RUN yarn install
 
-ADD ["ui/", "."]
+#ADD ["ui/", "."]
 
-ARG ARGO_VERSION=latest
-ENV ARGO_VERSION=$ARGO_VERSION
-RUN NODE_ENV='production' yarn build
+#ARG ARGO_VERSION=latest
+#ENV ARGO_VERSION=$ARGO_VERSION
+#RUN NODE_ENV='production' yarn build
 
 ####################################################################################################
 # Argo CD Build stage which performs the actual build of Argo CD binaries
@@ -139,4 +139,5 @@ RUN NODE_ENV='production' yarn build
 ####################################################################################################
 FROM argocd-base
 #COPY --from=argocd-build /go/src/github.com/argoproj/argo-cd/dist/argocd* /usr/local/bin/
-COPY --from=argocd-ui ./src/dist/app /shared/app
+#COPY --from=argocd-ui ./src/dist/app /shared/app
+COPY ./src/dist/app /shared/app
