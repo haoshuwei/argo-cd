@@ -160,7 +160,7 @@ func (a *ApplicationSource) GetRepoType() string {
 	if a.Chart == "" {
 		return "git"
 	}
-	if strings.Contains(a.Chart, "/") {
+	if a.RepoNamespace != "" {
 		return "helm-oci"
 	}
 	return "helm"

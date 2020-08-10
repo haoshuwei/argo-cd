@@ -123,12 +123,14 @@ func WaitForRefresh(ctx context.Context, appIf v1alpha1.ApplicationInterface, na
 	return nil, fmt.Errorf("application refresh deadline exceeded")
 }
 
-func TestRepoWithKnownType(repo *argoappv1.Repository) error {
-	if repo.Type == "template" {
+func TestRepoWithKnownType(repo *argoappv1.Repository, repoType string) error {
+	log.Infof("Requested app soure repo type'%s'", repoType)
+	if repoType == "template" {
 		return nil
 	}
 
 	repo = repo.DeepCopy()
+	repo.Type = repoType
 	return TestRepo(repo)
 }
 
@@ -188,7 +190,7 @@ func ValidateRepo(
 	}
 
 	repoAccessible := false
-	err = TestRepoWithKnownType(repo)
+	err = TestRepoWithKnownType(repo, app.Spec.Source.GetRepoType())
 	if err != nil {
 		conditions = append(conditions, argoappv1.ApplicationCondition{
 			Type:    argoappv1.ApplicationConditionInvalidSpecError,
